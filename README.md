@@ -1,2 +1,2 @@
 # DigitalNumeracyCalculator
-This is a symbol CLI Calculator.
+This is a simple CLI Calculator with multiple functions and basic programmability.
