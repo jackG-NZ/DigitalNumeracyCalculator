@@ -1,0 +1,29 @@
+BASIC OPERATIONS
+
+INPUT		a + b
+OPERATION	a + b = c
+OUTPUT		c
+
+INPUT		a - b
+OPERATION	a - b = c
+OUTPUT		c
+
+INPUT		a * b
+OPERATION	a * b = c
+OUTPUT		c
+
+INPUT		a / b
+OPERATION	a / b = c
+OUTPUT		c
+
+INPUT		( a + b ) / c
+OPERATION	( a + b ) / c = d
+OUTPUT		d
+
+INPUT		!sqrt a
+OPERATION	b = sqrt a
+OUTPUT		b
+
+INPUT 'q' TO RETURN TO MENU
+
+# 

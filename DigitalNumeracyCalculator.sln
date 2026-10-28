@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37502.11 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitalNumeracyCalculator", "DigitalNumeracyCalculator\DigitalNumeracyCalculator.csproj", "{4CA7C715-43C3-486F-BAAF-FA34D417C4DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMethods", "TestMethods\TestMethods.csproj", "{B71C65CC-076C-4D48-B68C-3524CCF17357}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4CA7C715-43C3-486F-BAAF-FA34D417C4DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CA7C715-43C3-486F-BAAF-FA34D417C4DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CA7C715-43C3-486F-BAAF-FA34D417C4DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CA7C715-43C3-486F-BAAF-FA34D417C4DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B71C65CC-076C-4D48-B68C-3524CCF17357}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B71C65CC-076C-4D48-B68C-3524CCF17357}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B71C65CC-076C-4D48-B68C-3524CCF17357}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B71C65CC-076C-4D48-B68C-3524CCF17357}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {817698A2-860B-4453-A940-8DEF21F6CBCC}
+	EndGlobalSection
+EndGlobal
