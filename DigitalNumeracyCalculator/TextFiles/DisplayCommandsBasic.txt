@@ -1,28 +1,24 @@
 BASIC OPERATIONS
 
-INPUT		a + b
-OPERATION	a + b = c
-OUTPUT		c
+INPUT		a + b			INPUT		!sqrt a
+OPERATION	a + b = c		OPERATION	b = sqrt a
+OUTPUT		c			OUTPUT		b
 
-INPUT		a - b
-OPERATION	a - b = c
-OUTPUT		c
+INPUT		a - b			INPUT		!pow a b
+OPERATION	a - b = c		OPERATION	c = a ^ b
+OUTPUT		c			OUTPUT		c
 
-INPUT		a * b
-OPERATION	a * b = c
-OUTPUT		c
+INPUT		a * b			INPUT		!fact a
+OPERATION	a * b = c		OPERATION	c = a!
+OUTPUT		c			OUTPUT		c
 
-INPUT		a / b
-OPERATION	a / b = c
-OUTPUT		c
+INPUT		a / b			INPUT		!mod a b
+OPERATION	a / b = c		OPERATION	c = a mod b
+OUTPUT		c			OUTPUT		c
 
 INPUT		( a + b ) / c
 OPERATION	( a + b ) / c = d
 OUTPUT		d
-
-INPUT		!sqrt a
-OPERATION	b = sqrt a
-OUTPUT		b
 
 INPUT 'q' TO RETURN TO MENU
 

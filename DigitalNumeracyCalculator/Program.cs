@@ -1,6 +1,7 @@
 ﻿using System.IO.Pipes;
 using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DigitalNumeracyCalculator
 {
@@ -127,7 +128,7 @@ namespace DigitalNumeracyCalculator
                                 if(EvaluatePostfix(ConvertToPostfix(input)) == 1234.4321)
                                 {
                                     Console.ForegroundColor = ConsoleColor.Red;
-                                    Console.WriteLine($"@ INPUT ERROR");
+                                    Console.WriteLine($"@ INPUT ERROR.");
                                     Console.ForegroundColor = ConsoleColor.White;
                                 }
                                 else
@@ -136,7 +137,7 @@ namespace DigitalNumeracyCalculator
                                     Console.WriteLine($"@ {EvaluatePostfix(ConvertToPostfix(input))}");
                                 }
                             }
-                            else if ("!".Contains(input[0])) //the "!" prefix is used as an identifier for certain functions
+                            else if ("!".Contains(input[0])) //the "!" prefix is used as an identifier for certain functions handled by the interpreter
                             {
                                 Console.WriteLine($"@ {Interpreter(input)}");
                             }
@@ -149,7 +150,7 @@ namespace DigitalNumeracyCalculator
                                 /*Else, an error message is thrown.*/
 
                                 Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine($"""@ OPERATOR "{input}" IS UNKNOWN""");
+                                Console.WriteLine($"""@ OPERATOR "{input}" IS UNKNOWN.""");
                                 Console.ForegroundColor = ConsoleColor.White;
                             }
                         }
@@ -163,7 +164,7 @@ namespace DigitalNumeracyCalculator
         {
             //I think this needs a pretty significant redesign for modularity in the future
 
-            double num, result = 0;
+            double result = 0;
 
             string[] expression = input.Split();
 
@@ -172,12 +173,82 @@ namespace DigitalNumeracyCalculator
             switch (operation)
             {
                 case "sqrt":
-                    num = Convert.ToDouble(expression[1]);
-                    result = Math.Sqrt(num);
+                    try
+                    {
+                        result = SquareRoot(Convert.ToDouble(expression[1]));
+                    }
+                    catch (Exception error)
+                    {
+                        InputError(error.Message);
+                    }
+                    break;
+                case "pow":
+                    try
+                    {
+                        result = Pow(Convert.ToDouble(expression[1]), Convert.ToDouble(expression[2]));
+                    }
+                    catch (Exception error)
+                    {
+                        InputError(error.Message);
+                    }
+                    break;
+                case "fact":
+                    try
+                    {
+                        result = Convert.ToDouble(Factorial(Convert.ToInt32(expression[1])));
+                    }
+                    catch (Exception error)
+                    {
+                        InputError(error.Message);
+                    }
+                    break;
+                case "mod":
+                    try
+                    {
+                        result = Modulo(Convert.ToDouble(expression[1]), Convert.ToDouble(expression[2]));
+                    }
+                    catch (Exception error)
+                    {
+                        InputError(error.Message);
+                    }
                     break;
             }
 
             return result;
+        }
+
+        public static void InputError(string error)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"@ {error.ToUpper()}");
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        public static double SquareRoot(double expression)
+        {
+            return Math.Sqrt(expression);
+        }
+
+        public static double Pow(double baseNum, double exponent)
+        {
+            return Math.Pow(baseNum, exponent);
+        }
+
+        public static long Factorial(int expression)
+        {
+            long result = 1; //using a long int here for 64 bits
+
+            for(int i = 1; i <= expression; i++)
+            {
+                result *= i;
+            }
+
+            return result;
+        }
+
+        public static double Modulo(double dividend, double divisor)
+        {
+            return dividend % divisor;
         }
 
         public static string ConvertToPostfix(string input)
