@@ -1,0 +1,12 @@
+VECTOR OPERATIONS
+
+INPUT		!line a x1 y1 x2 y2
+OPERATON	a = ( y2 - y1 / x2 - x1)
+OUTPUT		a
+
+INPUT		*a
+OUTPUT		ax1 ax2 ay1 ay2
+
+INPUT 'q' TO RETURN TO MENU
+
+# 

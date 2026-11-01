@@ -1,12 +1,26 @@
 ﻿using System.IO.Pipes;
 using System.Reflection.PortableExecutable;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DigitalNumeracyCalculator
 {
+    public struct Vector
+    {
+        public string vectorName;
+        public double x1;
+        public double x2;
+        public double y1;
+        public double y2;
+    }
+
     public class Program
     {
+        public static int vectorCount = 0;
+
+        public static Vector[] vectors = new Vector[8];
+
         static void Main(string[] args)
         {
             LaunchPad();
@@ -76,7 +90,10 @@ namespace DigitalNumeracyCalculator
                     case 'b':
                         list = "Utility";
                         break;
-                    case 'e':
+                    case 'c':
+                        list = "Vector";
+                        break;
+                    case 'd':
                         viewCommands = false;
                         break;
                 }
@@ -125,10 +142,10 @@ namespace DigitalNumeracyCalculator
                                  * input string contains a number or a parenttheses, the program
                                  * assumes the user wants to do an arithmetic operation.*/
 
-                                if(EvaluatePostfix(ConvertToPostfix(input)) == 1234.4321)
+                                if(EvaluatePostfix(ConvertToPostfix(input)) == 1234.4321) //I'm using 1234.4321 as a make-shift error code
                                 {
                                     Console.ForegroundColor = ConsoleColor.Red;
-                                    Console.WriteLine($"@ INPUT ERROR.");
+                                    Console.WriteLine($"@ Input Error.");
                                     Console.ForegroundColor = ConsoleColor.White;
                                 }
                                 else
@@ -139,18 +156,22 @@ namespace DigitalNumeracyCalculator
                             }
                             else if ("!".Contains(input[0])) //the "!" prefix is used as an identifier for certain functions handled by the interpreter
                             {
-                                Console.WriteLine($"@ {Interpreter(input)}");
+                                string result = Convert.ToString(Interpreter(input));
+                                if(result != "1234.4321")
+                                {
+                                    Console.WriteLine($"@ {result}");
+                                }
                             }
-                            else if(input == "ibm")
+                            else if ("*".Contains(input[0]))
                             {
-                                Console.WriteLine($"@ A COMPUTER\n  CAN NEVER BE HELD ACCOUNTABLE\n  THEREFORE A COMPUTER MUST NEVER\n  MAKE A MANAGEMENT DECISION\n  -IBM 1979");
+                                Dereference(input);
                             }
                             else
                             {
                                 /*Else, an error message is thrown.*/
 
                                 Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine($"""@ OPERATOR "{input}" IS UNKNOWN.""");
+                                Console.WriteLine($"""@ Operator "{input}" is unknown.""");
                                 Console.ForegroundColor = ConsoleColor.White;
                             }
                         }
@@ -164,7 +185,7 @@ namespace DigitalNumeracyCalculator
         {
             //I think this needs a pretty significant redesign for modularity in the future
 
-            double result = 0;
+            double result = 1234.4321;
 
             string[] expression = input.Split();
 
@@ -176,16 +197,6 @@ namespace DigitalNumeracyCalculator
                     try
                     {
                         result = SquareRoot(Convert.ToDouble(expression[1]));
-                    }
-                    catch (Exception error)
-                    {
-                        InputError(error.Message);
-                    }
-                    break;
-                case "pow":
-                    try
-                    {
-                        result = Pow(Convert.ToDouble(expression[1]), Convert.ToDouble(expression[2]));
                     }
                     catch (Exception error)
                     {
@@ -212,6 +223,26 @@ namespace DigitalNumeracyCalculator
                         InputError(error.Message);
                     }
                     break;
+                case "line":
+                    DefineVector(input);
+                    break;
+                case "ibm": //Easter egg
+                    {
+                        Console.WriteLine("@ A COMPUTER");
+                        Thread.Sleep(1500);
+                        Console.WriteLine("@ CAN NEVER BE HELD ACCOUNTABLE");
+                        Thread.Sleep(1500);
+                        Console.WriteLine("@ THEREFORE A COMPUTER MUST NEVER");
+                        Thread.Sleep(1500);
+                        Console.WriteLine("@ MAKE A MANAGEMENT DECISION");
+                        Thread.Sleep(1500);
+                        Console.WriteLine("@ - IBM 1979");
+                        Thread.Sleep(1500);
+                        break;
+                    }
+                default:
+                    Console.WriteLine("""@ Input "help" to view operations using the '!' prefix.""");
+                    break;
             }
 
             return result;
@@ -229,11 +260,6 @@ namespace DigitalNumeracyCalculator
             return Math.Sqrt(expression);
         }
 
-        public static double Pow(double baseNum, double exponent)
-        {
-            return Math.Pow(baseNum, exponent);
-        }
-
         public static long Factorial(int expression)
         {
             long result = 1; //using a long int here for 64 bits
@@ -249,6 +275,75 @@ namespace DigitalNumeracyCalculator
         public static double Modulo(double dividend, double divisor)
         {
             return dividend % divisor;
+        }
+
+        public static void DefineVector(string input)
+        {
+            /*This method handles the creation of custom vectors.*/
+
+            string[] vectorComponents = input.Split();
+
+            string vectorName = vectorComponents[1];
+
+            if(vectorCount <= 7)
+            {
+                try
+                {
+                    int x1 = Convert.ToInt32(vectorComponents[2]);
+                    int x2 = Convert.ToInt32(vectorComponents[3]);
+                    int y1 = Convert.ToInt32(vectorComponents[4]);
+                    int y2 = Convert.ToInt32(vectorComponents[5]);
+
+                    vectors[vectorCount].vectorName = vectorName;
+                    vectors[vectorCount].x1 = x1;
+                    vectors[vectorCount].x2 = x2;
+                    vectors[vectorCount].y1 = y1;
+                    vectors[vectorCount].y2 = y2;
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"""@ "{vectorName}" initialized.""");
+
+                    vectorCount += 1;
+                }
+                catch
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"@ Syntax Error.");
+                }
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"@ Maximum of 8 lines are permitted.");
+            }
+
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        public static void Dereference(string input)
+        {
+            /*This method is intended to function kinda like derefencing a variable in C by just printing out its values.*/
+
+            string variable = "";
+
+            try
+            {
+                variable = input.Substring(1);
+            }
+            catch
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"@ Syntax Error.");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+
+            for(int i = 0; i < vectors.Length; i++)
+            {
+                if (vectors[i].vectorName == variable)
+                {
+                    Console.WriteLine($"@ {vectors[i].x1} {vectors[i].x2} {vectors[i].y1} {vectors[i].y2}");
+                }
+            }
         }
 
         public static string ConvertToPostfix(string input)
@@ -276,49 +371,67 @@ namespace DigitalNumeracyCalculator
              *  .:. output: 1 2 + 3 *
             */
 
+            string result = "";
+
+            bool validExpression = true;
+
             List<string> output = new List<string>(); //basically stores the converted expression
             Stack<string> stack = new Stack<string>(); //stack is a LIFO data structure so we can use .Pop and .Push
 
             string[] tokens = input.Split(); //splits each digit/symbol into a unique token
 
-            foreach (string token in tokens)
+            for(int i = 0; i < tokens.Length; i++) //divide by zero protection (the program won't crash without it but I thought )
             {
-                if (int.TryParse(token, out _)) //functions like a bool by trying to convert token to an int, then adds it to the output queue if successful
+                if (tokens[i] == "/")
                 {
-                    output.Add(token);
-                }
-                else if (token == "(") //opening parenttheses goes on the stack
-                {
-                    stack.Push(token);
-                }
-                else if (token == ")")
-                {
-                    while (stack.Count > 0 && stack.Peek() != "(") //empties operators from the stack into the output until the opening parenthesis is found
+                    if (tokens[i + 1] == "0")
                     {
-                        output.Add(stack.Pop());
+                        validExpression = false;
                     }
-
-                    stack.Pop(); //opening parentthesis is discarded
                 }
-                else
+            }
+
+            if(validExpression)
+            {
+                foreach (string token in tokens)
                 {
-                    while (stack.Count > 0 && FindPrecendence(stack.Peek()) >= FindPrecendence(token)) //operator on the stack with higher or equal precedence goes to the output queue first
+                    if (int.TryParse(token, out _)) //functions like a bool by trying to convert token to an int, then adds it to the output queue if successful
                     {
-                        if (token != "^") //the "^" operator has right associativity so it can't be moved onto the output until the other operators have been
+                        output.Add(token);
+                    }
+                    else if (token == "(") //opening parenttheses goes on the stack
+                    {
+                        stack.Push(token);
+                    }
+                    else if (token == ")")
+                    {
+                        while (stack.Count > 0 && stack.Peek() != "(") //empties operators from the stack into the output until the opening parenthesis is found
                         {
                             output.Add(stack.Pop());
                         }
+
+                        stack.Pop(); //opening parentthesis is discarded
                     }
-                    stack.Push(token);
+                    else
+                    {
+                        while (stack.Count > 0 && FindPrecendence(stack.Peek()) >= FindPrecendence(token)) //operator on the stack with higher or equal precedence goes to the output queue first
+                        {
+                            if (token != "^") //the "^" operator has right associativity so it can't be moved onto the output until the other operators have been
+                            {
+                                output.Add(stack.Pop());
+                            }
+                        }
+                        stack.Push(token);
+                    }
                 }
-            }
 
-            while (stack.Count > 0) //finishes emptying the stack
-            {
-                output.Add(stack.Pop());
-            }
+                while (stack.Count > 0) //finishes emptying the stack
+                {
+                    output.Add(stack.Pop());
+                }
 
-            string result = string.Join(" ", output);
+                result = string.Join(" ", output);
+            }
 
             return result;
         }
