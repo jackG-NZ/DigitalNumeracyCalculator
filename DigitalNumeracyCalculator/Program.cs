@@ -156,10 +156,11 @@ namespace DigitalNumeracyCalculator
                             }
                             else if ("!".Contains(input[0])) //the "!" prefix is used as an identifier for certain functions handled by the interpreter
                             {
-                                string result = Convert.ToString(Interpreter(input));
-                                if(result != "1234.4321")
+                                double result = Interpreter(input);
+
+                                if(result != 1234.4321)
                                 {
-                                    Console.WriteLine($"@ {result}");
+                                    Console.WriteLine($"@ {result:F2}");
                                 }
                             }
                             else if ("*".Contains(input[0]))
@@ -227,7 +228,10 @@ namespace DigitalNumeracyCalculator
                     DefineVector(input);
                     break;
                 case "lengthline":
-                    LengthLine(input);
+                    result = LengthLine(input);
+                    break;
+                case "midpointline":
+                    Console.WriteLine(MidPointLine(input));
                     break;
                 case "ibm": //Easter egg
                     {
@@ -335,9 +339,25 @@ namespace DigitalNumeracyCalculator
                 dy = Convert.ToDouble(line.Split()[3]) - Convert.ToDouble(line.Split()[1]);
             }
 
-            Console.WriteLine($"{SquareRoot(dx * dx + dy * dy):F2}");
+            return SquareRoot(dx * dx + dy * dy);
+        }
 
-            return 0;
+        static string MidPointLine(string input)
+        {
+            double dx = 0, dy = 0;
+
+            string line = Dereference(input, false);
+            string midPoint = "";
+
+            if(line.Length > 0) //-2 1 4 3
+            {
+                dx = Convert.ToDouble(line.Split()[0]) + Convert.ToDouble(line.Split()[2]);
+                dy = Convert.ToDouble(line.Split()[1]) + Convert.ToDouble(line.Split()[3]);
+            }
+
+            midPoint = "@ " + Convert.ToString(dx/2) + ", " + Convert.ToString(dy/2);
+
+            return midPoint;
         }
 
         public static string Dereference(string input, bool printOutput)
