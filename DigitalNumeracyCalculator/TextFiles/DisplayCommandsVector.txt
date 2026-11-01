@@ -1,11 +1,16 @@
 VECTOR OPERATIONS
 
 INPUT		!line a x1 y1 x2 y2
-OPERATON	a = ( y2 - y1 / x2 - x1)
+OPERATON	a = ( x1 y1 x2 y2)
 OUTPUT		a
 
-INPUT		*a
-OUTPUT		ax1 ax2 ay1 ay2
+INPUT		* a
+OUTPUT		x1 y1 x2 y2
+
+INPUT		!lengthline a
+OPERATION	( x2 - x1 / y2 - y1 )
+			b = sqrt ( dx^2 + dy^2 )
+OUTPUT		b
 
 INPUT 'q' TO RETURN TO MENU
 

@@ -164,7 +164,7 @@ namespace DigitalNumeracyCalculator
                             }
                             else if ("*".Contains(input[0]))
                             {
-                                Dereference(input);
+                                Dereference(input, true);
                             }
                             else
                             {
@@ -225,6 +225,9 @@ namespace DigitalNumeracyCalculator
                     break;
                 case "line":
                     DefineVector(input);
+                    break;
+                case "lengthline":
+                    LengthLine(input);
                     break;
                 case "ibm": //Easter egg
                     {
@@ -290,14 +293,14 @@ namespace DigitalNumeracyCalculator
                 try
                 {
                     int x1 = Convert.ToInt32(vectorComponents[2]);
-                    int x2 = Convert.ToInt32(vectorComponents[3]);
-                    int y1 = Convert.ToInt32(vectorComponents[4]);
+                    int y1 = Convert.ToInt32(vectorComponents[3]);
+                    int x2 = Convert.ToInt32(vectorComponents[4]);
                     int y2 = Convert.ToInt32(vectorComponents[5]);
 
                     vectors[vectorCount].vectorName = vectorName;
                     vectors[vectorCount].x1 = x1;
-                    vectors[vectorCount].x2 = x2;
                     vectors[vectorCount].y1 = y1;
+                    vectors[vectorCount].x2 = x2;
                     vectors[vectorCount].y2 = y2;
 
                     Console.ForegroundColor = ConsoleColor.Green;
@@ -320,30 +323,59 @@ namespace DigitalNumeracyCalculator
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        public static void Dereference(string input)
+        static double LengthLine(string input)
         {
-            /*This method is intended to function kinda like derefencing a variable in C by just printing out its values.*/
+            double dx = 0, dy = 0;
+
+            string line = Dereference(input, false);
+
+            if (line.Length > 0){ //0 0 3 2
+
+                dx = Convert.ToDouble(line.Split()[2]) - Convert.ToDouble(line.Split()[0]);
+                dy = Convert.ToDouble(line.Split()[3]) - Convert.ToDouble(line.Split()[1]);
+            }
+
+            Console.WriteLine($"{SquareRoot(dx * dx + dy * dy):F2}");
+
+            return 0;
+        }
+
+        public static string Dereference(string input, bool printOutput)
+        {
+            /*This method is intended to function kinda like derefencing a variable in C by just printing out its values.
+             * It's also used by other methods to confirm that instances of structs actually exist before trying to perform
+             * operations on them/*/
 
             string variable = "";
 
             try
             {
-                variable = input.Substring(1);
+                variable = input.Split()[1];
             }
             catch
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"@ Syntax Error.");
-                Console.ForegroundColor = ConsoleColor.White;
+                if (printOutput)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"@ Syntax Error.");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
             }
 
             for(int i = 0; i < vectors.Length; i++)
             {
                 if (vectors[i].vectorName == variable)
                 {
-                    Console.WriteLine($"@ {vectors[i].x1} {vectors[i].x2} {vectors[i].y1} {vectors[i].y2}");
+                    if (printOutput)
+                    {
+                        Console.WriteLine($"@ {vectors[i].x1} {vectors[i].y1} {vectors[i].x2} {vectors[i].y2}");
+                    }
+
+                    variable = Convert.ToString(vectors[i].x1 + " " + vectors[i].y1 + " " + vectors[i].x2 + " " + vectors[i].y2);
                 }
             }
+
+            return variable; 
         }
 
         public static string ConvertToPostfix(string input)
