@@ -68,7 +68,23 @@ namespace DigitalNumeracyCalculator
 
                 StreamReader sr = new StreamReader(@$"..\..\..\TextFiles\DisplayCommands{list}.txt");
 
-                Console.Write(sr.ReadToEnd());
+                if(list == "Menu")
+                {
+                    Console.BackgroundColor = ConsoleColor.DarkBlue;
+                    Console.WriteLine("========== Operation List ==========");
+
+                    Console.BackgroundColor = ConsoleColor.DarkYellow;
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    Console.Write(sr.ReadToEnd());
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    Console.Write("\n\n#");
+                }
+                else
+                {
+                    Console.Write(sr.ReadToEnd());
+                }
 
                 string inputString = Console.ReadLine().ToLower();
 
@@ -184,9 +200,10 @@ namespace DigitalNumeracyCalculator
 
         public static double Interpreter(string input)
         {
-            //I think this needs a pretty significant redesign for modularity in the future
+            /*I think this needs a pretty significant redesign for modularity in the future
+             * but this method is intended to interpret operations with the '!' prefix.*/
 
-            double result = 1234.4321;
+            double result = 1234.4321; //make-shift error code. If nothing is returned the interpreter assumes an error has occurred somewhere.
 
             string[] expression = input.Split();
 
@@ -257,6 +274,8 @@ namespace DigitalNumeracyCalculator
 
         public static void InputError(string error)
         {
+            /*This is a small method that handles error messages.*/
+
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"@ {error.ToUpper()}");
             Console.ForegroundColor = ConsoleColor.White;
@@ -264,11 +283,15 @@ namespace DigitalNumeracyCalculator
 
         public static double SquareRoot(double expression)
         {
+            /*Fairly self explanatory. Returns the square root of an expression.*/
+
             return Math.Sqrt(expression);
         }
 
         public static long Factorial(int expression)
         {
+            /*Returns the factorial of a number.*/
+
             long result = 1; //using a long int here for 64 bits
 
             for(int i = 1; i <= expression; i++)
@@ -281,6 +304,8 @@ namespace DigitalNumeracyCalculator
 
         public static double Modulo(double dividend, double divisor)
         {
+            /*Returns modulo of a dividend and a divisor.*/
+
             return dividend % divisor;
         }
 
@@ -329,9 +354,11 @@ namespace DigitalNumeracyCalculator
 
         static double LengthLine(string input)
         {
+            /*Returns the length of a line.*/
+
             double dx = 0, dy = 0;
 
-            string line = Dereference(input, false);
+            string line = Dereference(input, false); //basically to check that the given string actually exists
 
             if (line.Length > 0){ //0 0 3 2
 
@@ -344,6 +371,8 @@ namespace DigitalNumeracyCalculator
 
         static string MidPointLine(string input)
         {
+            //Returns the midpoint of a line.*/
+
             double dx = 0, dy = 0;
 
             string line = Dereference(input, false);
@@ -364,7 +393,7 @@ namespace DigitalNumeracyCalculator
         {
             /*This method is intended to function kinda like derefencing a variable in C by just printing out its values.
              * It's also used by other methods to confirm that instances of structs actually exist before trying to perform
-             * operations on them/*/
+             * operations on them. See above, LengthLine and MidPointLine.*/
 
             string variable = "";
 

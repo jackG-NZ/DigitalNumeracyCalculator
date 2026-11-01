@@ -16,6 +16,6 @@ INPUT		!midpointline a
 OPERATION	b = ( x1 + x2 ) / 2, ( y1 + y2 ) / 2
 OUTPUT		b
 
-INPUT 'q' TO RETURN TO MENU
+Input 'q' to return to menu.
 
 # 

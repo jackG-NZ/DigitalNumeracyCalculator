@@ -1,9 +1,6 @@
-INPUT 'a' TO SEE BASIC OPERATIONS
-
-INPUT 'b' TO SEE UTILITY OPERATIONS
-
-INPUT 'c' TO SEE VECTOR OPERATIONS
-
-INPUT 'd' TO BEGIN CALCULATING
-
-#  
+Input 'a' to see basic operations.  
+Input 'b' to see utility operations.
+Input 'c' To see vector operations. 
+Input 'd' to begin calculating.     
+                                    
+Please input your choice below. (#) 

@@ -20,6 +20,6 @@ INPUT		( a + b ) / c
 OPERATION	( a + b ) / c = d
 OUTPUT		d
 
-INPUT 'q' TO RETURN TO MENU
+Input 'q' to return to menu.
 
 # 

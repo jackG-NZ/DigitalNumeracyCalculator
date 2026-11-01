@@ -12,6 +12,6 @@ OUTPUT		PRINT DATE AND TIME
 INPUT		help
 OUTPUT		DISPLAYS COMMAND LIST
 
-INPUT 'q' TO RETURN TO MENU
+Input 'q' to return to menu.
 
 # 
