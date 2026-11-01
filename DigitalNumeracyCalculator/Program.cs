@@ -452,6 +452,13 @@ namespace DigitalNumeracyCalculator
              *  .:. output: 1 2 + 3 *
             */
 
+            /*BASICALLY: Numeric literals go straight onto the output, operators go onto the stack providing
+             * they are a higher precedence that what's already on the top of the stack. Assume we have 1 2 4 on
+             * the output and + * on the stack, if the next token is an operator with lesser precedence than * and +
+             * for example -, the stack is flushed into the output (LIFO) and the - is moved onto the stack, becoming
+             * its sole token. The stack is flushed completely when all tokens have been moved into their correct
+             * place, leaving the stack empty and the translated expression in the output.*/
+
             string result = "";
 
             bool validExpression = true;
