@@ -1,4 +1,6 @@
-﻿using System.IO.Pipes;
+﻿using System;
+using System.IO.Pipes;
+using System.Linq.Expressions;
 using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -28,28 +30,9 @@ namespace DigitalNumeracyCalculator
 
         static void LaunchPad()
         {
-            TitleScreen();
-
             DisplayCommands();
 
             GetUserInput();
-        }
-
-        static void TitleScreen()
-        {
-            /*This method just displays a little title screen.*/
-
-            Console.BackgroundColor = ConsoleColor.DarkBlue;
-            Console.WriteLine("====== CLI Calculator v1.0 ======");
-            Console.BackgroundColor = ConsoleColor.DarkYellow;
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.WriteLine("Welcome! Press[ENTER] to proceed.");
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.ForegroundColor = ConsoleColor.White;
-
-            Console.ReadLine();
-
-            Console.Clear();
         }
 
         static void DisplayCommands()
@@ -71,11 +54,12 @@ namespace DigitalNumeracyCalculator
                 if(list == "Menu")
                 {
                     Console.BackgroundColor = ConsoleColor.DarkBlue;
-                    Console.WriteLine("========== Operation List ==========");
-
-                    Console.BackgroundColor = ConsoleColor.DarkYellow;
+                    Console.WriteLine("========== CLI CALCULATOR ==========");
+                    Console.BackgroundColor = ConsoleColor.Cyan;
                     Console.ForegroundColor = ConsoleColor.Black;
                     Console.Write(sr.ReadToEnd());
+                    Console.BackgroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine("\n===== Input your choice below. =====");
                     Console.BackgroundColor = ConsoleColor.Black;
                     Console.ForegroundColor = ConsoleColor.White;
 
@@ -83,7 +67,17 @@ namespace DigitalNumeracyCalculator
                 }
                 else
                 {
+                    Console.BackgroundColor = ConsoleColor.DarkBlue;
+                    Console.WriteLine($"================================= OPERATIONS =================================");
+                    Console.BackgroundColor = ConsoleColor.Cyan;
+                    Console.ForegroundColor = ConsoleColor.Black;
                     Console.Write(sr.ReadToEnd());
+                    Console.BackgroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine("\n============================ Input 'q' to return. ============================");
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    Console.Write("\n\n# ");
                 }
 
                 string inputString = Console.ReadLine().ToLower();
@@ -137,7 +131,9 @@ namespace DigitalNumeracyCalculator
                 Console.Write("# ");
                 input = Console.ReadLine().ToLower();
 
-                switch (input)
+                double result = 0;
+
+                switch (input.Split()[0])
                 {
                     case "clear":
                         Console.Clear();
@@ -152,48 +148,77 @@ namespace DigitalNumeracyCalculator
                         Console.Clear();
                         DisplayCommands();
                         break;
-                    default:
-                        if (input.Length > 0)
+                    case "sqrt":
+                        try
                         {
-                            //CHANGE THIS EVENTUALLY
-
-                            if ("-()0123456789".Contains(input[0]))
+                            Console.WriteLine($"@ {SquareRoot(Convert.ToDouble(input.Split()[1]))}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "fact":
+                        try
+                        {
+                            Console.WriteLine($"@ {Convert.ToDouble(Factorial(Convert.ToInt32(input.Split()[1])))}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "mod":
+                        try
+                        {
+                            Console.WriteLine($"@ {Modulo(Convert.ToDouble(input.Split()[1]), Convert.ToDouble(input.Split()[2]))}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "line":
+                        DefineVector(input);
+                        break;
+                    case "lengthline":
+                        Console.WriteLine($"@ {LengthLine(input)}");
+                        break;
+                    case "midpointline":
+                        Console.WriteLine($"@ {MidPointLine(input)}");
+                        break;
+                    case "binary":
+                        Console.WriteLine($"@ {Binary(input)}");
+                        break;
+                    case "ibm": //Easter egg
+                        {
+                            Console.WriteLine("@ A COMPUTER");
+                            Thread.Sleep(1500);
+                            Console.WriteLine("@ CAN NEVER BE HELD ACCOUNTABLE");
+                            Thread.Sleep(1500);
+                            Console.WriteLine("@ THEREFORE A COMPUTER MUST NEVER");
+                            Thread.Sleep(1500);
+                            Console.WriteLine("@ MAKE A MANAGEMENT DECISION");
+                            Thread.Sleep(1500);
+                            Console.WriteLine("@ - IBM 1979");
+                            Thread.Sleep(1500);
+                            break;
+                        }
+                    default:
+                        if(input.Length > 0)
+                        {
+                            if ("0123456789(".Contains(input.Substring(0, 1)))
                             {
-                                /*This is really bizarre but it works. If the 0th position of the
-                                 * input string contains a number or a parenttheses, the program
-                                 * assumes the user wants to do an arithmetic operation.*/
-
-                                if(EvaluatePostfix(ConvertToPostfix(input)) == 1234.4321) //I'm using 1234.4321 as a make-shift error code
-                                {
-                                    Console.ForegroundColor = ConsoleColor.Red;
-                                    Console.WriteLine($"@ Input Error.");
-                                    Console.ForegroundColor = ConsoleColor.White;
-                                }
-                                else
+                                if (EvaluatePostfix(ConvertToPostfix(input)) != 1234.4321)
                                 {
                                     Console.WriteLine($"@ {ConvertToPostfix(input)}");
                                     Console.WriteLine($"@ {EvaluatePostfix(ConvertToPostfix(input))}");
                                 }
                             }
-                            else if ("!".Contains(input[0])) //the "!" prefix is used as an identifier for certain functions handled by the interpreter
-                            {
-                                double result = Interpreter(input);
-
-                                if(result != 1234.4321)
-                                {
-                                    Console.WriteLine($"@ {result:F2}");
-                                }
-                            }
-                            else if ("*".Contains(input[0]))
-                            {
-                                Dereference(input, true);
-                            }
                             else
                             {
-                                /*Else, an error message is thrown.*/
-
                                 Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine($"""@ Operator "{input}" is unknown.""");
+                                Console.WriteLine($"""@ "{input}" is unknown. Enter "help" to see a list of operations.""");
                                 Console.ForegroundColor = ConsoleColor.White;
                             }
                         }
@@ -201,83 +226,6 @@ namespace DigitalNumeracyCalculator
                 }
 
             } while (isInCalculator);
-        }
-
-        public static double Interpreter(string input)
-        {
-            /*I think this needs a pretty significant redesign for modularity in the future
-             * but this method is intended to interpret operations with the '!' prefix.*/
-
-            double result = 1234.4321; //make-shift error code. If nothing is returned the interpreter assumes an error has occurred somewhere.
-
-            string[] expression = input.Split();
-
-            string operation = expression[0].Substring(1);
-
-            switch (operation)
-            {
-                case "sqrt":
-                    try
-                    {
-                        result = SquareRoot(Convert.ToDouble(expression[1]));
-                    }
-                    catch (Exception error)
-                    {
-                        InputError(error.Message);
-                    }
-                    break;
-                case "fact":
-                    try
-                    {
-                        result = Convert.ToDouble(Factorial(Convert.ToInt32(expression[1])));
-                    }
-                    catch (Exception error)
-                    {
-                        InputError(error.Message);
-                    }
-                    break;
-                case "mod":
-                    try
-                    {
-                        result = Modulo(Convert.ToDouble(expression[1]), Convert.ToDouble(expression[2]));
-                    }
-                    catch (Exception error)
-                    {
-                        InputError(error.Message);
-                    }
-                    break;
-                case "line":
-                    DefineVector(input);
-                    break;
-                case "lengthline":
-                    result = LengthLine(input);
-                    break;
-                case "midpointline":
-                    Console.WriteLine(MidPointLine(input));
-                    break;
-                case "binary":
-                    result = Binary(input);
-                    break;
-                case "ibm": //Easter egg
-                    {
-                        Console.WriteLine("@ A COMPUTER");
-                        Thread.Sleep(1500);
-                        Console.WriteLine("@ CAN NEVER BE HELD ACCOUNTABLE");
-                        Thread.Sleep(1500);
-                        Console.WriteLine("@ THEREFORE A COMPUTER MUST NEVER");
-                        Thread.Sleep(1500);
-                        Console.WriteLine("@ MAKE A MANAGEMENT DECISION");
-                        Thread.Sleep(1500);
-                        Console.WriteLine("@ - IBM 1979");
-                        Thread.Sleep(1500);
-                        break;
-                    }
-                default:
-                    Console.WriteLine("""@ Input "help" to view operations using the '!' prefix.""");
-                    break;
-            }
-
-            return result;
         }
 
         public static void InputError(string error)
