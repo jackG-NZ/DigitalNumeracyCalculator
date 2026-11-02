@@ -1,6 +1,7 @@
 Input 'a' to see basic operations.  
 Input 'b' to see utility operations.
 Input 'c' To see vector operations. 
-Input 'd' to begin calculating.     
+Input 'd' To see binary operations. 
+Input 'e' to begin calculating.     
                                     
 Please input your choice below. (#) 

@@ -1,0 +1,8 @@
+BINARY OPERATIONS
+
+INPUT		!binary a
+OUTPUT		INITIALIZE 'a'
+
+Input 'q' to return to menu.
+
+# 
