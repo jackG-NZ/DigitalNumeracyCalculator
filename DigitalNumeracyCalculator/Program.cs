@@ -110,6 +110,9 @@ namespace DigitalNumeracyCalculator
                         list = "Vector";
                         break;
                     case 'd':
+                        list = "Binary";
+                        break;
+                    case 'e':
                         viewCommands = false;
                         break;
                 }
@@ -152,6 +155,8 @@ namespace DigitalNumeracyCalculator
                     default:
                         if (input.Length > 0)
                         {
+                            //CHANGE THIS EVENTUALLY
+
                             if ("-()0123456789".Contains(input[0]))
                             {
                                 /*This is really bizarre but it works. If the 0th position of the
@@ -249,6 +254,9 @@ namespace DigitalNumeracyCalculator
                     break;
                 case "midpointline":
                     Console.WriteLine(MidPointLine(input));
+                    break;
+                case "binary":
+                    Binary();
                     break;
                 case "ibm": //Easter egg
                     {
@@ -427,6 +435,37 @@ namespace DigitalNumeracyCalculator
             return variable; 
         }
 
+        public static void Binary()
+        {
+            /*Quite a few things to do here. Addition and subtraction of signed and unsigned integers first.*/
+
+            // 00000011 3
+
+            //8   7  6  5  4 3 2 1
+            //128 64 32 16 8 4 2 1
+            string binary = "11111111";
+
+            int baseTwo = 128, value = 0;
+
+            foreach (char ch in binary)
+            {
+                Console.Write($"{baseTwo} ");
+
+                if (ch == '0')
+                {
+
+                }
+                else if (ch == '1')
+                {
+                    value += baseTwo;
+                }
+
+                baseTwo -= baseTwo / 2;
+            }
+
+            Console.WriteLine($"\n@ {value}");
+        }
+
         public static string ConvertToPostfix(string input)
         {
             /*Infix notation to postfix notation using shunting yard algorithm.
@@ -438,26 +477,18 @@ namespace DigitalNumeracyCalculator
              * https://youtu.be/1VjJe1PeExQ
              * https://youtu.be/Wz85Hiwi5MY
              * https://youtu.be/QM_RsQ9Yeio
-             * https://en.wikipedia.org/wiki/Shunting_yard_algorithm*/
-
-            /*  ( 1 + 2 ) * 3
-             *  ( -> stack
-             *  1 -> output
-             *  + -> stack
-             *  2 -> output
-             *  empty until and discard (, leaving 1 2 + on the output
-             *  * -> stack
-             *  3 -> output
-             *  * -> output
-             *  .:. output: 1 2 + 3 *
-            */
+             * https://en.wikipedia.org/wiki/Shunting_yard_algorithm
+             * https://youtu.be/unh6aK8WMwM <- this video was particularly good.*/
 
             /*BASICALLY: Numeric literals go straight onto the output, operators go onto the stack providing
              * they are a higher precedence that what's already on the top of the stack. Assume we have 1 2 4 on
              * the output and + * on the stack, if the next token is an operator with lesser precedence than * and +
              * for example -, the stack is flushed into the output (LIFO) and the - is moved onto the stack, becoming
              * its sole token. The stack is flushed completely when all tokens have been moved into their correct
-             * place, leaving the stack empty and the translated expression in the output.*/
+             * place, leaving the stack empty and the translated expression in the output. If tokens have the same
+             * precedence, the stack is flushed if the incoming token has left associativity (for example * and /)
+             * have the same precedence but / is left associative, so the stack would be flushed. ^ is the rare
+             * exception in that it is right associative.*/
 
             string result = "";
 
