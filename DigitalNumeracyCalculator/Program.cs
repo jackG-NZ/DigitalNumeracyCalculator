@@ -256,7 +256,7 @@ namespace DigitalNumeracyCalculator
                     Console.WriteLine(MidPointLine(input));
                     break;
                 case "binary":
-                    Binary();
+                    result = Binary(input);
                     break;
                 case "ibm": //Easter egg
                     {
@@ -435,35 +435,49 @@ namespace DigitalNumeracyCalculator
             return variable; 
         }
 
-        public static void Binary()
+        public static int Binary(string input)
         {
-            /*Quite a few things to do here. Addition and subtraction of signed and unsigned integers first.*/
+            /*Quite a few things to do here. Addition and subtraction of signed and unsigned integers first.
+             * May have to make a binary struct? Add check for signed/unsigned integer.*/
 
             // 00000011 3
 
             //8   7  6  5  4 3 2 1
             //128 64 32 16 8 4 2 1
-            string binary = "11111111";
 
-            int baseTwo = 128, value = 0;
+            string binaryOne = input.Split()[1], binaryTwo = input.Split()[3];
 
-            foreach (char ch in binary)
+            char operation = Convert.ToChar(input.Split()[2]);
+
+            int baseTwo = 128, valueOne = 0, valueTwo = 0;
+
+            foreach (char ch in binaryOne)
             {
-                Console.Write($"{baseTwo} ");
+                //Console.Write($"{baseTwo} ");
 
-                if (ch == '0')
+                if (ch == '1')
                 {
-
-                }
-                else if (ch == '1')
-                {
-                    value += baseTwo;
+                    valueOne += baseTwo;
                 }
 
                 baseTwo -= baseTwo / 2;
             }
 
-            Console.WriteLine($"\n@ {value}");
+            baseTwo = 128;
+
+            foreach(char ch in binaryTwo)
+            {
+                if (ch == '1')
+                {
+                    valueTwo += baseTwo;
+                }
+
+                baseTwo -= baseTwo / 2;
+            }
+
+            Console.WriteLine($"@ {valueOne} {operation} {valueTwo}");
+
+            return valueOne + valueTwo;
         }
 
         public static string ConvertToPostfix(string input)
