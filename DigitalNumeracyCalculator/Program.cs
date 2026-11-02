@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Dynamic;
 using System.IO.Pipes;
 using System.Linq.Expressions;
 using System.Reflection.PortableExecutable;
@@ -148,6 +149,9 @@ namespace DigitalNumeracyCalculator
                         Console.Clear();
                         DisplayCommands();
                         break;
+                    case "*":
+                        Dereference(input, true);
+                        break;
                     case "sqrt":
                         try
                         {
@@ -187,8 +191,11 @@ namespace DigitalNumeracyCalculator
                     case "midpointline":
                         Console.WriteLine($"@ {MidPointLine(input)}");
                         break;
-                    case "binary":
-                        Console.WriteLine($"@ {Binary(input)}");
+                    case "ubinary":
+                        if(UnsignedBinary(input)!= 1234.4321)
+                        {
+                            Console.WriteLine($"@ {UnsignedBinary(input)}");
+                        }
                         break;
                     case "ibm": //Easter egg
                         {
@@ -213,6 +220,12 @@ namespace DigitalNumeracyCalculator
                                 {
                                     Console.WriteLine($"@ {ConvertToPostfix(input)}");
                                     Console.WriteLine($"@ {EvaluatePostfix(ConvertToPostfix(input))}");
+                                }
+                                else
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    Console.WriteLine($"""@ Bad expression.""");
+                                    Console.ForegroundColor = ConsoleColor.White;
                                 }
                             }
                             else
@@ -340,7 +353,7 @@ namespace DigitalNumeracyCalculator
                 dy = Convert.ToDouble(line.Split()[1]) + Convert.ToDouble(line.Split()[3]);
             }
 
-            midPoint = "@ " + Convert.ToString(dx/2) + ", " + Convert.ToString(dy/2);
+            midPoint = Convert.ToString(dx/2) + ", " + Convert.ToString(dy/2);
 
             return midPoint;
         }
@@ -383,7 +396,7 @@ namespace DigitalNumeracyCalculator
             return variable; 
         }
 
-        public static int Binary(string input)
+        public static double UnsignedBinary(string input)
         {
             /*Quite a few things to do here. Addition and subtraction of signed and unsigned integers first.
              * May have to make a binary struct? Add check for signed/unsigned integer.*/
@@ -393,39 +406,87 @@ namespace DigitalNumeracyCalculator
             //8   7  6  5  4 3 2 1
             //128 64 32 16 8 4 2 1
 
-            string binaryOne = input.Split()[1], binaryTwo = input.Split()[3];
+            string expression = "";
+            string binaryOne = "";
+            string binaryTwo = "";
+            string operation = "";
 
-            char operation = Convert.ToChar(input.Split()[2]);
+            bool validInput = true;
 
             int baseTwo = 128, valueOne = 0, valueTwo = 0;
+            double result = 1234.4321;
 
-            foreach (char ch in binaryOne)
+            try
             {
-                //Console.Write($"{baseTwo} ");
+                binaryOne = input.Split()[1];
+                binaryTwo = input.Split()[3];
+                operation = input.Split()[2];
+            }
+            catch
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("@ Bad declaration.");
+                Console.ForegroundColor = ConsoleColor.White;
 
-                if (ch == '1')
-                {
-                    valueOne += baseTwo;
-                }
-
-                baseTwo -= baseTwo / 2;
+                validInput = false;
             }
 
-            baseTwo = 128;
-
-            foreach(char ch in binaryTwo)
+            if (validInput)
             {
-                if (ch == '1')
+                if(binaryOne.Length < 8)
                 {
-                    valueTwo += baseTwo;
+                    binaryOne = PadBinary(binaryOne.Length, binaryOne);
                 }
 
-                baseTwo -= baseTwo / 2;
+                if(binaryTwo.Length < 8)
+                {
+                    binaryTwo = PadBinary(binaryTwo.Length, binaryTwo);
+                }
+
+                foreach (char ch in binaryOne)
+                {
+                    //Console.Write($"{baseTwo} ");
+
+                    if (ch == '1')
+                    {
+                        valueOne += baseTwo;
+                    }
+
+                    baseTwo -= baseTwo / 2;
+                }
+
+                baseTwo = 128;
+
+                foreach (char ch in binaryTwo)
+                {
+                    if (ch == '1')
+                    {
+                        valueTwo += baseTwo;
+                    }
+
+                    baseTwo -= baseTwo / 2;
+                }
+
+                expression = Convert.ToString(valueOne + " " + operation + " " + valueTwo);
+
+                result = EvaluatePostfix(ConvertToPostfix(expression));
             }
 
-            Console.WriteLine($"@ {valueOne} {operation} {valueTwo}");
+            return result;
+        }
 
-            return valueOne + valueTwo;
+        public static string PadBinary(int length, string binary)
+        {
+            string padding = "";
+            
+            for (int i = 0; i < 8 - binary.Length; i++)
+            {
+                padding += "0";
+            }
+
+            binary = padding + binary;
+
+            return binary;
         }
 
         public static string ConvertToPostfix(string input)
