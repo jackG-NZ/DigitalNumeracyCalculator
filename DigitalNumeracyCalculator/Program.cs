@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics.Tracing;
 using System.Dynamic;
 using System.IO.Pipes;
 using System.Linq.Expressions;
+using System.Net;
 using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -9,18 +11,31 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DigitalNumeracyCalculator
 {
-    public struct Vector
+    public struct Line
     {
-        public string vectorName;
+        public string lineName;
         public double x1;
         public double x2;
         public double y1;
         public double y2;
     }
 
+    public struct Vector
+    {
+        public string vectorName;
+        public double x;
+        public double y;
+    }
+
     public class Program
     {
-        public static int vectorCount = 0;
+        /*These ints are used to keep track of which instance of a struct
+         * is the next to be initialized, and to prevent more than 8 of each
+         * from being created (hopefully 8 will be enough)*/
+
+        public static int lineCount = 0, vectorCount = 0;
+
+        public static Line[] lines = new Line[8];
 
         public static Vector[] vectors = new Vector[8];
 
@@ -55,12 +70,12 @@ namespace DigitalNumeracyCalculator
                 if(list == "Menu")
                 {
                     Console.BackgroundColor = ConsoleColor.DarkBlue;
-                    Console.WriteLine("========== CLI CALCULATOR ==========");
+                    Console.WriteLine("============ CLI CALCULATOR ============");
                     Console.BackgroundColor = ConsoleColor.Cyan;
                     Console.ForegroundColor = ConsoleColor.Black;
                     Console.Write(sr.ReadToEnd());
                     Console.BackgroundColor = ConsoleColor.DarkCyan;
-                    Console.WriteLine("\n===== Input your choice below. =====");
+                    Console.WriteLine("\n======= Input your choice below. =======");
                     Console.BackgroundColor = ConsoleColor.Black;
                     Console.ForegroundColor = ConsoleColor.White;
 
@@ -102,10 +117,10 @@ namespace DigitalNumeracyCalculator
                         list = "Utility";
                         break;
                     case 'c':
-                        list = "Vector";
+                        list = "Geometry";
                         break;
                     case 'd':
-                        list = "Binary";
+                        list = "Vector";
                         break;
                     case 'e':
                         viewCommands = false;
@@ -119,9 +134,11 @@ namespace DigitalNumeracyCalculator
 
         static void GetUserInput()
         {
-            /*This method handles user input. The large switch statement is 
+            /*This method handles user input. The huge ugly switch statement is 
              * for performing the right actions or calling the right methods, and also
-             * handling input errors.*/
+             * handling input errors. I'm not a big fan of having every method call
+             * inside a try/except but I think it's the cleanest way to do input
+             * protection.*/
 
             string input = "";
 
@@ -131,8 +148,6 @@ namespace DigitalNumeracyCalculator
             {
                 Console.Write("# ");
                 input = Console.ReadLine().ToLower();
-
-                double result = 0;
 
                 switch (input.Split()[0])
                 {
@@ -150,7 +165,7 @@ namespace DigitalNumeracyCalculator
                         DisplayCommands();
                         break;
                     case "*":
-                        Dereference(input, true);
+                        Dereference(input, "deref", true);
                         break;
                     case "sqrt":
                         try
@@ -183,18 +198,93 @@ namespace DigitalNumeracyCalculator
                         }
                         break;
                     case "line":
-                        DefineVector(input);
+                        try
+                        {
+                            DefineLine(input);
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "vec":
+                        try
+                        {
+                            DefineVector(input);
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
                         break;
                     case "lengthline":
-                        Console.WriteLine($"@ {LengthLine(input)}");
+                        try
+                        {
+                            Console.WriteLine($"@ {LengthLine(input):F2}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
                         break;
                     case "midpointline":
-                        Console.WriteLine($"@ {MidPointLine(input)}");
-                        break;
-                    case "ubinary":
-                        if(UnsignedBinary(input)!= 1234.4321)
+                        try
                         {
-                            Console.WriteLine($"@ {UnsignedBinary(input)}");
+                            Console.WriteLine($"@ {MidPointLine(input)}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "gradientline":
+                        try
+                        {
+                            Console.WriteLine($"@ {GradientLine(input):F2}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "rad2deg":
+                        try
+                        {
+                            Console.WriteLine($"@ {Rad2Deg(input):F2}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "deg2rad":
+                        try
+                        {
+                            Console.WriteLine($"@ {Deg2Rad(input):F2}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "addvec":
+                        try
+                        {
+                            Console.WriteLine($"@ {AddVec(input)}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "subvec":
+                        try
+                        {
+                            Console.WriteLine($"@ {SubVec(input)}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
                         }
                         break;
                     case "ibm": //Easter egg
@@ -224,7 +314,7 @@ namespace DigitalNumeracyCalculator
                                 else
                                 {
                                     Console.ForegroundColor = ConsoleColor.Red;
-                                    Console.WriteLine($"""@ Bad expression.""");
+                                    Console.WriteLine($"""@ Syntax error or bad expression.""");
                                     Console.ForegroundColor = ConsoleColor.White;
                                 }
                             }
@@ -243,23 +333,34 @@ namespace DigitalNumeracyCalculator
 
         public static void InputError(string error)
         {
-            /*This is a small method that handles error messages.*/
+            /*This is a small method that handles error messages*/
 
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"@ {error.ToUpper()}");
+            Console.WriteLine($"""@ Syntax error or bad expression. Input "more" for more information.""");
+
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("# ");
+            string more = Console.ReadLine().ToLower();
+
+            if(more == "more")
+            {
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                Console.WriteLine($"""@ Exception error: {error}"""); //usually the error message is pretty vague but thought I'd include it anyway
+            }
+
             Console.ForegroundColor = ConsoleColor.White;
         }
 
         public static double SquareRoot(double expression)
         {
-            /*Fairly self explanatory. Returns the square root of an expression.*/
+            /*Fairly self explanatory. Returns the square root of an expression*/
 
             return Math.Sqrt(expression);
         }
 
         public static long Factorial(int expression)
         {
-            /*Returns the factorial of a number.*/
+            /*Returns the factorial of a number*/
 
             long result = 1; //using a long int here for 64 bits
 
@@ -273,44 +374,36 @@ namespace DigitalNumeracyCalculator
 
         public static double Modulo(double dividend, double divisor)
         {
-            /*Returns modulo of a dividend and a divisor.*/
+            /*Returns modulo of a dividend and a divisor*/
 
             return dividend % divisor;
         }
 
-        public static void DefineVector(string input)
+        public static void DefineLine(string input)
         {
-            /*This method handles the creation of custom vectors.*/
+            /*This method handles the creation of custom lines*/
 
-            string[] vectorComponents = input.Split();
+            string[] lineComponents = input.Split(); //I love the .split method it has been extremely useful for this assignment
 
-            string vectorName = vectorComponents[1];
+            string lineName = lineComponents[1];
 
-            if(vectorCount <= 7)
+            if(lineCount < 8)
             {
-                try
-                {
-                    int x1 = Convert.ToInt32(vectorComponents[2]);
-                    int y1 = Convert.ToInt32(vectorComponents[3]);
-                    int x2 = Convert.ToInt32(vectorComponents[4]);
-                    int y2 = Convert.ToInt32(vectorComponents[5]);
+                int x1 = Convert.ToInt32(lineComponents[2]);
+                int y1 = Convert.ToInt32(lineComponents[3]);
+                int x2 = Convert.ToInt32(lineComponents[4]);
+                int y2 = Convert.ToInt32(lineComponents[5]);
 
-                    vectors[vectorCount].vectorName = vectorName;
-                    vectors[vectorCount].x1 = x1;
-                    vectors[vectorCount].y1 = y1;
-                    vectors[vectorCount].x2 = x2;
-                    vectors[vectorCount].y2 = y2;
+                lines[lineCount].lineName = lineName;
+                lines[lineCount].x1 = x1;
+                lines[lineCount].y1 = y1;
+                lines[lineCount].x2 = x2;
+                lines[lineCount].y2 = y2;
 
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine($"""@ "{vectorName}" initialized.""");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"""@ "{lineName}" initialized.""");
 
-                    vectorCount += 1;
-                }
-                catch
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"@ Syntax Error.");
-                }
+                lineCount += 1;
             }
             else
             {
@@ -321,13 +414,89 @@ namespace DigitalNumeracyCalculator
             Console.ForegroundColor = ConsoleColor.White;
         }
 
+        public static void DefineVector(string input)
+        {
+            /*This method handles the creation of custom vectors*/
+
+            string[] vectorComponents = input.Split();
+
+            string vectorName = vectorComponents[1];
+
+            if(vectorCount < 8)
+            {
+                int x = Convert.ToInt32(vectorComponents[2]);
+                int y = Convert.ToInt32(vectorComponents[3]);
+
+                vectors[vectorCount].vectorName = vectorName;
+                vectors[vectorCount].x = x;
+                vectors[vectorCount].y = y;
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"""@ "{vectorName}" initialized.""");
+
+                vectorCount += 1;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"@ Maximum of 8 vectors are permitted.");
+            }
+
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        public static string Dereference(string input, string type, bool printOutput)
+        {
+            /*This method is intended to function kinda like derefencing a variable in C by just printing out its values.
+             * It's also used by other methods to confirm that instances of a struct actually exist before trying to perform
+             * an operation on it. See above, LengthLine and MidPointLine etc.*/
+
+            string variable = "";
+
+            if(type == "line" || type == "deref")
+            {
+                variable = input.Split()[1];
+            }
+
+            if(type == "vector")
+            {
+                variable = input;
+            }
+
+
+            for (int i = 0; i < 8; i++) //this is probably really inefficient
+            {
+                if (lines[i].lineName == variable)
+                {
+                    if (printOutput)
+                    {
+                        Console.WriteLine($"@ {lines[i].x1} {lines[i].y1} {lines[i].x2} {lines[i].y2}");
+                    }
+
+                    variable = Convert.ToString(lines[i].x1 + " " + lines[i].y1 + " " + lines[i].x2 + " " + lines[i].y2);
+                }
+
+                if (vectors[i].vectorName == variable)
+                {
+                    if (printOutput)
+                    {
+                        Console.WriteLine($"@ {vectors[i].x} {vectors[i].y}");
+                    }
+
+                    variable = Convert.ToString(vectors[i].x + " " + vectors[i].y);
+                }
+            }
+
+            return variable;
+        }
+
         static double LengthLine(string input)
         {
-            /*Returns the length of a line.*/
+            /*Returns the length of a line*/
 
             double dx = 0, dy = 0;
 
-            string line = Dereference(input, false); //basically to check that the given string actually exists
+            string line = Dereference(input, "line", false); //basically to check that the given line actually exists
 
             if (line.Length > 0){ //0 0 3 2
 
@@ -340,11 +509,11 @@ namespace DigitalNumeracyCalculator
 
         static string MidPointLine(string input)
         {
-            //Returns the midpoint of a line.*/
+            /*Returns the midpoint of a line*/
 
             double dx = 0, dy = 0;
 
-            string line = Dereference(input, false);
+            string line = Dereference(input, "line", false);
             string midPoint = "";
 
             if(line.Length > 0) //-2 1 4 3
@@ -358,135 +527,71 @@ namespace DigitalNumeracyCalculator
             return midPoint;
         }
 
-        public static string Dereference(string input, bool printOutput)
+        static double GradientLine(string input)
         {
-            /*This method is intended to function kinda like derefencing a variable in C by just printing out its values.
-             * It's also used by other methods to confirm that instances of structs actually exist before trying to perform
-             * operations on them. See above, LengthLine and MidPointLine.*/
+            /*Returns the gradient of a line*/
 
-            string variable = "";
+            double dx = 0, dy = 0;
 
-            try
+            string line = Dereference(input, "line", false);
+            double gradient = 0;
+
+            if (line.Length > 0) //
             {
-                variable = input.Split()[1];
-            }
-            catch
-            {
-                if (printOutput)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"@ Syntax Error.");
-                    Console.ForegroundColor = ConsoleColor.White;
-                }
+                dx = Convert.ToDouble(line.Split()[2]) - Convert.ToDouble(line.Split()[0]);
+                dy = Convert.ToDouble(line.Split()[3]) - Convert.ToDouble(line.Split()[1]);
             }
 
-            for(int i = 0; i < vectors.Length; i++)
-            {
-                if (vectors[i].vectorName == variable)
-                {
-                    if (printOutput)
-                    {
-                        Console.WriteLine($"@ {vectors[i].x1} {vectors[i].y1} {vectors[i].x2} {vectors[i].y2}");
-                    }
+            gradient = dy / dx;
 
-                    variable = Convert.ToString(vectors[i].x1 + " " + vectors[i].y1 + " " + vectors[i].x2 + " " + vectors[i].y2);
-                }
-            }
-
-            return variable; 
+            return gradient;
         }
 
-        public static double UnsignedBinary(string input)
+        public static double Rad2Deg(string input)
         {
-            /*Quite a few things to do here. Addition and subtraction of signed and unsigned integers first.
-             * May have to make a binary struct? Add check for signed/unsigned integer.*/
+            /*Returns degrees converted from radians*/
 
-            // 00000011 3
+            double radians = Convert.ToDouble(input.Split()[1]);
 
-            //8   7  6  5  4 3 2 1
-            //128 64 32 16 8 4 2 1
+            double degrees = radians * 180 / Math.PI;
 
-            string expression = "";
-            string binaryOne = "";
-            string binaryTwo = "";
-            string operation = "";
-
-            bool validInput = true;
-
-            int baseTwo = 128, valueOne = 0, valueTwo = 0;
-            double result = 1234.4321;
-
-            try
-            {
-                binaryOne = input.Split()[1];
-                binaryTwo = input.Split()[3];
-                operation = input.Split()[2];
-            }
-            catch
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("@ Bad declaration.");
-                Console.ForegroundColor = ConsoleColor.White;
-
-                validInput = false;
-            }
-
-            if (validInput)
-            {
-                if(binaryOne.Length < 8)
-                {
-                    binaryOne = PadBinary(binaryOne.Length, binaryOne);
-                }
-
-                if(binaryTwo.Length < 8)
-                {
-                    binaryTwo = PadBinary(binaryTwo.Length, binaryTwo);
-                }
-
-                foreach (char ch in binaryOne)
-                {
-                    //Console.Write($"{baseTwo} ");
-
-                    if (ch == '1')
-                    {
-                        valueOne += baseTwo;
-                    }
-
-                    baseTwo -= baseTwo / 2;
-                }
-
-                baseTwo = 128;
-
-                foreach (char ch in binaryTwo)
-                {
-                    if (ch == '1')
-                    {
-                        valueTwo += baseTwo;
-                    }
-
-                    baseTwo -= baseTwo / 2;
-                }
-
-                expression = Convert.ToString(valueOne + " " + operation + " " + valueTwo);
-
-                result = EvaluatePostfix(ConvertToPostfix(expression));
-            }
-
-            return result;
+            return degrees;
         }
 
-        public static string PadBinary(int length, string binary)
+        public static double Deg2Rad(string input)
         {
-            string padding = "";
-            
-            for (int i = 0; i < 8 - binary.Length; i++)
-            {
-                padding += "0";
-            }
+            /*Returns radians converted from degrees*/
 
-            binary = padding + binary;
+            double degrees = Convert.ToDouble(input.Split()[1]);
 
-            return binary;
+            double radians = degrees * Math.PI / 180;
+
+            return radians;
+        }
+
+        public static string AddVec(string input)
+        {
+            /*This method adds two vectors togethe*/
+
+            string vectorOne = Dereference(input.Split()[1], "vector", true);
+            string vectorTwo = Dereference(input.Split()[2], "vector", true);
+
+            string x1 = vectorOne.Split()[0]; // "1" " " "2"
+            string y1 = vectorOne.Split()[1];
+            string x2 = vectorTwo.Split()[0];
+            string y2 = vectorTwo.Split()[1];
+
+            double sumX = Convert.ToDouble(x1) + Convert.ToDouble(x2);
+            double sumY = Convert.ToDouble(y1) + Convert.ToDouble(y2);
+
+            string sumVectors = Convert.ToString(sumX) + ", " + Convert.ToString(sumY);
+
+            return sumVectors;
+        }
+
+        public static string SubVec(string input)
+        {
+            return "sussybaka";
         }
 
         public static string ConvertToPostfix(string input)
