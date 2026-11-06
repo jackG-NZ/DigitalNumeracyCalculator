@@ -287,6 +287,16 @@ namespace DigitalNumeracyCalculator
                             InputError(error.Message);
                         }
                         break;
+                    case "dotvec":
+                        try
+                        {
+                            Console.WriteLine($"@ {DotVec(input)}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
                     case "ibm": //Easter egg
                         {
                             Console.WriteLine("@ A COMPUTER");
@@ -571,18 +581,10 @@ namespace DigitalNumeracyCalculator
 
         public static string AddVec(string input)
         {
-            /*This method adds two vectors togethe*/
+            /*This method adds two vectors together*/
 
-            string vectorOne = Dereference(input.Split()[1], "vector", true);
-            string vectorTwo = Dereference(input.Split()[2], "vector", true);
-
-            string x1 = vectorOne.Split()[0]; // "1" " " "2"
-            string y1 = vectorOne.Split()[1];
-            string x2 = vectorTwo.Split()[0];
-            string y2 = vectorTwo.Split()[1];
-
-            double sumX = Convert.ToDouble(x1) + Convert.ToDouble(x2);
-            double sumY = Convert.ToDouble(y1) + Convert.ToDouble(y2);
+            double sumX = Convert.ToDouble(SplitIntoVectorComponents(input)[0]) + Convert.ToDouble(SplitIntoVectorComponents(input)[2]);
+            double sumY = Convert.ToDouble(SplitIntoVectorComponents(input)[1]) + Convert.ToDouble(SplitIntoVectorComponents(input)[3]);
 
             string sumVectors = Convert.ToString(sumX) + ", " + Convert.ToString(sumY);
 
@@ -591,7 +593,35 @@ namespace DigitalNumeracyCalculator
 
         public static string SubVec(string input)
         {
-            return "sussybaka";
+            /*This method subtracts two vectors*/
+
+            double sumX = Convert.ToDouble(SplitIntoVectorComponents(input)[0]) - Convert.ToDouble(SplitIntoVectorComponents(input)[2]);
+            double sumY = Convert.ToDouble(SplitIntoVectorComponents(input)[1]) - Convert.ToDouble(SplitIntoVectorComponents(input)[3]);
+
+            string sumVectors = Convert.ToString(sumX) + ", " + Convert.ToString(sumY);
+
+            return sumVectors;
+        }
+
+        public static string DotVec(string input)
+        {
+            return "sus";
+        }
+
+        static string[] SplitIntoVectorComponents(string input)
+        {
+            /*This method splits a string into vector components and confirms its existence by calling the dereference method
+             * it then returns a string array that the AddVec and SubVec methods use to perform their calculations*/
+
+            string vectorOne = Dereference(input.Split()[1], "vector", false);
+            string vectorTwo = Dereference(input.Split()[2], "vector", false);
+
+            string x1 = vectorOne.Split()[0];
+            string y1 = vectorOne.Split()[1];
+            string x2 = vectorTwo.Split()[0];
+            string y2 = vectorTwo.Split()[1];
+
+            return new string[] { x1, y1, x2, y2 }; 
         }
 
         public static string ConvertToPostfix(string input)
