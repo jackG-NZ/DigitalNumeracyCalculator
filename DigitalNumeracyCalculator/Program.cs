@@ -291,6 +291,30 @@ namespace DigitalNumeracyCalculator
                         try
                         {
                             Console.WriteLine($"@ {DotVec(input)}");
+
+                            if(Convert.ToInt32(DotVec(input)) > 0)
+                            {
+                                Console.WriteLine("@ These vectors are pointing in the same direction (acute).");
+                            }
+                            else if (Convert.ToInt32(DotVec(input)) == 0)
+                            {
+                                Console.WriteLine("@ These vectors are perpendicular to each other.");
+                            }
+                            else
+                            {
+                                Console.WriteLine("@ These vectors are pointing in opposite directions (obtuse).");
+                            }
+
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "scalvec":
+                        try
+                        {
+                            Console.WriteLine($"@ {ScalVec(input)}");
                         }
                         catch (Exception error)
                         {
@@ -604,6 +628,18 @@ namespace DigitalNumeracyCalculator
         }
 
         public static string DotVec(string input)
+        {
+            /*This method returns the dot product of two vectors*/
+
+            double multiplyA = Convert.ToDouble(SplitIntoVectorComponents(input)[0]) * Convert.ToDouble(SplitIntoVectorComponents(input)[2]);
+            double multiplyB = Convert.ToDouble(SplitIntoVectorComponents(input)[1]) * Convert.ToDouble(SplitIntoVectorComponents(input)[3]);
+
+            string dotProduct = Convert.ToString(multiplyA + multiplyB);
+
+            return dotProduct;
+        }
+
+        public static string ScalVec(string input)
         {
             return "sus";
         }
