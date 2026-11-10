@@ -27,17 +27,26 @@ namespace DigitalNumeracyCalculator
         public double y;
     }
 
+    public struct Matrix
+    {
+        public string matrixName;
+        public int columns; //horizontal
+        public int rows; //vertical
+    }
+
     public class Program
     {
         /*These ints are used to keep track of which instance of a struct
          * is the next to be initialized, and to prevent more than 8 of each
          * from being created (hopefully 8 will be enough)*/
 
-        public static int lineCount = 0, vectorCount = 0;
+        public static int lineCount = 0, vectorCount = 0, matrixCount = 0;
 
         public static Line[] lines = new Line[8];
 
         public static Vector[] vectors = new Vector[8];
+
+        public static Matrix[] matrices = new Matrix[8];
 
         static void Main(string[] args)
         {
@@ -69,29 +78,13 @@ namespace DigitalNumeracyCalculator
 
                 if(list == "Menu")
                 {
-                    Console.BackgroundColor = ConsoleColor.DarkBlue;
-                    Console.WriteLine("============ CLI CALCULATOR ============");
-                    Console.BackgroundColor = ConsoleColor.Cyan;
-                    Console.ForegroundColor = ConsoleColor.Black;
-                    Console.Write(sr.ReadToEnd());
-                    Console.BackgroundColor = ConsoleColor.DarkCyan;
-                    Console.WriteLine("\n======= Input your choice below. =======");
-                    Console.BackgroundColor = ConsoleColor.Black;
-                    Console.ForegroundColor = ConsoleColor.White;
+                    DisplayMainMenu(sr);
 
                     Console.Write("\n\n#");
                 }
                 else
                 {
-                    Console.BackgroundColor = ConsoleColor.DarkBlue;
-                    Console.WriteLine($"================================= OPERATIONS =================================");
-                    Console.BackgroundColor = ConsoleColor.Cyan;
-                    Console.ForegroundColor = ConsoleColor.Black;
-                    Console.Write(sr.ReadToEnd());
-                    Console.BackgroundColor = ConsoleColor.DarkCyan;
-                    Console.WriteLine("\n============================ Input 'q' to return. ============================");
-                    Console.BackgroundColor = ConsoleColor.Black;
-                    Console.ForegroundColor = ConsoleColor.White;
+                    DisplaySubMenu(sr);
 
                     Console.Write("\n\n# ");
                 }
@@ -165,7 +158,14 @@ namespace DigitalNumeracyCalculator
                         DisplayCommands();
                         break;
                     case "*":
-                        Dereference(input, "deref", true);
+                        try
+                        {
+                            Dereference(input, "deref", true);
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
                         break;
                     case "sqrt":
                         try
@@ -641,10 +641,19 @@ namespace DigitalNumeracyCalculator
 
         public static string ScalVec(string input)
         {
-            return "sus";
+            /*This method returns a vector multiplied by a scalar*/
+
+            int scalar = Convert.ToInt32(input.Split()[1]);
+
+            string vectorOne = Dereference(input.Split()[2], "vector", false);
+
+            int x = Convert.ToInt32(vectorOne.Split()[0]) * scalar;
+            int y = Convert.ToInt32(vectorOne.Split()[1]) * scalar;
+
+            return Convert.ToString(x) + ", " + Convert.ToString(y);
         }
 
-        static string[] SplitIntoVectorComponents(string input)
+        public static string[] SplitIntoVectorComponents(string input)
         {
             /*This method splits a string into vector components and confirms its existence by calling the dereference method
              * it then returns a string array that the AddVec and SubVec methods use to perform their calculations*/
@@ -838,6 +847,32 @@ namespace DigitalNumeracyCalculator
             {
                 return 1234.4321; //1234.4321 serves as an error message here
             }
+        }
+
+        static void DisplayMainMenu(StreamReader sr)
+        {
+            Console.BackgroundColor = ConsoleColor.DarkBlue;
+            Console.WriteLine("============ CLI CALCULATOR ============");
+            Console.BackgroundColor = ConsoleColor.Cyan;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.Write(sr.ReadToEnd());
+            Console.BackgroundColor = ConsoleColor.DarkCyan;
+            Console.WriteLine("\n======= Input your choice below. =======");
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        static void DisplaySubMenu(StreamReader sr)
+        {
+            Console.BackgroundColor = ConsoleColor.DarkBlue;
+            Console.WriteLine($"================================= OPERATIONS =================================");
+            Console.BackgroundColor = ConsoleColor.Cyan;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.Write(sr.ReadToEnd());
+            Console.BackgroundColor = ConsoleColor.DarkCyan;
+            Console.WriteLine("\n============================ Input 'q' to return. ============================");
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }
