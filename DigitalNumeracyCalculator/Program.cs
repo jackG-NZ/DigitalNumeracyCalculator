@@ -30,8 +30,10 @@ namespace DigitalNumeracyCalculator
     public struct Matrix
     {
         public string matrixName;
-        public int columns; //horizontal
-        public int rows; //vertical
+        public int a;
+        public int b;
+        public int c;
+        public int d;
     }
 
     public class Program
@@ -116,6 +118,9 @@ namespace DigitalNumeracyCalculator
                         list = "Vector";
                         break;
                     case 'e':
+                        list = "Matrix";
+                        break;
+                    case 'f':
                         viewCommands = false;
                         break;
                 }
@@ -321,6 +326,36 @@ namespace DigitalNumeracyCalculator
                             InputError(error.Message);
                         }
                         break;
+                    case "mat":
+                        try
+                        {
+                            DefineMatrix(input);
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "addmat":
+                        try
+                        {
+                            Console.WriteLine($"@ {AddMat(input)}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "dotmat":
+                        try
+                        {
+                            Console.WriteLine($"@ {DotMat(input)}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
                     case "ibm": //Easter egg
                         {
                             Console.WriteLine("@ A COMPUTER");
@@ -348,7 +383,7 @@ namespace DigitalNumeracyCalculator
                                 else
                                 {
                                     Console.ForegroundColor = ConsoleColor.Red;
-                                    Console.WriteLine($"""@ Syntax error or bad expression.""");
+                                    Console.WriteLine($"""@ Syntax error or bad expression. Please leave whitespaces between tokens.""");
                                     Console.ForegroundColor = ConsoleColor.White;
                                 }
                             }
@@ -479,6 +514,42 @@ namespace DigitalNumeracyCalculator
             Console.ForegroundColor = ConsoleColor.White;
         }
 
+        public static void DefineMatrix(string input)
+        {
+            /*This method handles the creation of custom vectors. Very similar to the
+             * DefineVector method*/
+
+            string[] matrixComponents = input.Split();
+
+            string matrixName = matrixComponents[1];
+
+            if(matrixCount < 8)
+            {
+                int a = Convert.ToInt32(matrixComponents[2]);
+                int b = Convert.ToInt32(matrixComponents[3]);
+                int c = Convert.ToInt32(matrixComponents[4]);
+                int d = Convert.ToInt32(matrixComponents[5]);
+
+                matrices[matrixCount].matrixName = matrixName;
+                matrices[matrixCount].a = a;
+                matrices[matrixCount].b = b;
+                matrices[matrixCount].c = c;
+                matrices[matrixCount].d = d;
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"""@ "{matrixName}" initialized.""");
+
+                matrixCount += 1;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"@ Maximum of 8 matrices are permitted.");
+            }
+
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
         public static string Dereference(string input, string type, bool printOutput)
         {
             /*This method is intended to function kinda like derefencing a variable in C by just printing out its values.
@@ -497,8 +568,13 @@ namespace DigitalNumeracyCalculator
                 variable = input;
             }
 
+            if (type == "matrix")
+            {
+                variable = input;
+            }
 
-            for (int i = 0; i < 8; i++) //this is probably really inefficient
+
+            for (int i = 0; i < 8; i++) //this is probably really horrible and inefficient because it has to look through every struct for a match
             {
                 if (lines[i].lineName == variable)
                 {
@@ -518,6 +594,16 @@ namespace DigitalNumeracyCalculator
                     }
 
                     variable = Convert.ToString(vectors[i].x + " " + vectors[i].y);
+                }
+
+                if (matrices[i].matrixName == variable)
+                {
+                    if (printOutput)
+                    {
+                        Console.WriteLine($"@ {matrices[i].a} {matrices[i].b} {matrices[i].c} {matrices[i].d}");
+                    }
+
+                    variable = Convert.ToString(matrices[i].a + " " + matrices[i].b + " " + matrices[i].c + " " + matrices[i].d);
                 }
             }
 
@@ -666,7 +752,46 @@ namespace DigitalNumeracyCalculator
             string x2 = vectorTwo.Split()[0];
             string y2 = vectorTwo.Split()[1];
 
-            return new string[] { x1, y1, x2, y2 }; 
+            return new string[] { x1, y1, x2, y2 };
+        }
+
+        public static string AddMat(string input)
+        {
+            /*This method returns the addition of two 2x2 matrices*/
+
+            string matrixOne = Dereference(input.Split()[1], "matrix", false);
+            string matrixTwo = Dereference(input.Split()[2], "matrix", false);
+
+            string sumA = Convert.ToString(Convert.ToInt32(matrixOne.Split()[0]) + Convert.ToInt32(matrixTwo.Split()[0]));
+            string sumB = Convert.ToString(Convert.ToInt32(matrixOne.Split()[1]) + Convert.ToInt32(matrixTwo.Split()[1]));
+            string sumC = Convert.ToString(Convert.ToInt32(matrixOne.Split()[2]) + Convert.ToInt32(matrixTwo.Split()[2]));
+            string sumD = Convert.ToString(Convert.ToInt32(matrixOne.Split()[3]) + Convert.ToInt32(matrixTwo.Split()[3]));
+
+            return sumA + " " + sumB + " " + sumC + " " + sumD;
+        }
+
+        public static string DotMat(string input)
+        {
+            /*This method returns the dot product of two matrices (matrix multiplication)*/
+                                                                               //0  1  2  3
+            string matrixOne = Dereference(input.Split()[1], "matrix", false); //A1 B2 C3 D4
+            string matrixTwo = Dereference(input.Split()[2], "matrix", false); //W5 X6 Y7 Z8
+
+            string dotAW = Convert.ToString(Convert.ToInt32(matrixOne.Split()[0]) * Convert.ToInt32(matrixTwo.Split()[0])); //this is asinine but it works
+            string dotBY = Convert.ToString(Convert.ToInt32(matrixOne.Split()[1]) * Convert.ToInt32(matrixTwo.Split()[2]));
+            string dotAX = Convert.ToString(Convert.ToInt32(matrixOne.Split()[0]) * Convert.ToInt32(matrixTwo.Split()[1]));
+            string dotBZ = Convert.ToString(Convert.ToInt32(matrixOne.Split()[1]) * Convert.ToInt32(matrixTwo.Split()[3]));
+            string dotCW = Convert.ToString(Convert.ToInt32(matrixOne.Split()[2]) * Convert.ToInt32(matrixTwo.Split()[0]));
+            string dotDY = Convert.ToString(Convert.ToInt32(matrixOne.Split()[3]) * Convert.ToInt32(matrixTwo.Split()[2]));
+            string dotCX = Convert.ToString(Convert.ToInt32(matrixOne.Split()[2]) * Convert.ToInt32(matrixTwo.Split()[1]));
+            string dotDZ = Convert.ToString(Convert.ToInt32(matrixOne.Split()[3]) * Convert.ToInt32(matrixTwo.Split()[3]));
+
+            string sumAWBY = Convert.ToString(Convert.ToInt32(dotAW) + Convert.ToInt32(dotBY));
+            string sumAXBZ = Convert.ToString(Convert.ToInt32(dotAX) + Convert.ToInt32(dotBZ));
+            string sumCWDY = Convert.ToString(Convert.ToInt32(dotCW) + Convert.ToInt32(dotDY));
+            string sumCXDZ = Convert.ToString(Convert.ToInt32(dotCX) + Convert.ToInt32(dotDZ));
+
+            return sumAWBY + " " + sumAXBZ + " " + sumCWDY + " " + sumCXDZ;
         }
 
         public static string ConvertToPostfix(string input)
