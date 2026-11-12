@@ -132,11 +132,11 @@ namespace DigitalNumeracyCalculator
 
         static void GetUserInput()
         {
-            /*This method handles user input. The huge ugly switch statement is 
+            /*This method handles user input. The enormous switch statement is 
              * for performing the right actions or calling the right methods, and also
              * handling input errors. I'm not a big fan of having every method call
              * inside a try/except but I think it's the cleanest way to do input
-             * protection.*/
+             * protection*/
 
             string input = "";
 
@@ -350,6 +350,36 @@ namespace DigitalNumeracyCalculator
                         try
                         {
                             Console.WriteLine($"@ {DotMat(input)}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "scalmat":
+                        try
+                        {
+                            Console.WriteLine($"@ {ScalMat(input)}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "detmat":
+                        try
+                        {
+                            Console.WriteLine($"@ {DetMat(input)}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "invmat":
+                        try
+                        {
+                            Console.WriteLine($"@ {InvMat(input)}");
                         }
                         catch (Exception error)
                         {
@@ -792,6 +822,38 @@ namespace DigitalNumeracyCalculator
             string sumCXDZ = Convert.ToString(Convert.ToInt32(dotCX) + Convert.ToInt32(dotDZ));
 
             return sumAWBY + " " + sumAXBZ + " " + sumCWDY + " " + sumCXDZ;
+        }
+
+        public static string ScalMat(string input)
+        {
+            /*This method returns the results of a scalar applied to a matrix*/
+
+            int scalar = Convert.ToInt32(input.Split()[1]);
+
+            string matrix = Dereference(input.Split()[2], "matrix", false);
+
+            string a = Convert.ToString(scalar * Convert.ToInt32(matrix.Split()[0]));
+            string b = Convert.ToString(scalar * Convert.ToInt32(matrix.Split()[1]));
+            string c = Convert.ToString(scalar * Convert.ToInt32(matrix.Split()[2]));
+            string d = Convert.ToString(scalar * Convert.ToInt32(matrix.Split()[3]));
+
+            return a + " " + b + " " + c + " " + d;
+        }
+
+        public static int DetMat(string input)
+        {
+            /*Returns the determinant of a matrix*/
+
+            string matrix = Dereference(input.Split()[1], "matrix", false); //det(a) = ad - bc
+
+            int determinant = (Convert.ToInt32(matrix.Split()[0]) * Convert.ToInt32(matrix.Split()[3])) - (Convert.ToInt32(matrix.Split()[1]) * Convert.ToInt32(matrix.Split()[2]));
+
+            return determinant;
+        }
+
+        public static int InvMat(string input)
+        {
+            return 0;
         }
 
         public static string ConvertToPostfix(string input)
