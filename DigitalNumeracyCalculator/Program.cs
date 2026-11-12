@@ -9,6 +9,8 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
+//!!! SEE THE DOCUMENTATION.md FILE FOR INFORMATION ABOUT BUGS, AI USAGE, ETC !!!
+
 namespace DigitalNumeracyCalculator
 {
     public struct Line
@@ -403,26 +405,7 @@ namespace DigitalNumeracyCalculator
                     default:
                         if(input.Length > 0)
                         {
-                            if ("0123456789(".Contains(input.Substring(0, 1)))
-                            {
-                                if (EvaluatePostfix(ConvertToPostfix(input)) != 1234.4321)
-                                {
-                                    Console.WriteLine($"@ {ConvertToPostfix(input)}");
-                                    Console.WriteLine($"@ {EvaluatePostfix(ConvertToPostfix(input))}");
-                                }
-                                else
-                                {
-                                    Console.ForegroundColor = ConsoleColor.Red;
-                                    Console.WriteLine($"""@ Syntax error or bad expression. Please leave whitespaces between tokens.""");
-                                    Console.ForegroundColor = ConsoleColor.White;
-                                }
-                            }
-                            else
-                            {
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine($"""@ "{input}" is unknown. Enter "help" to see a list of operations.""");
-                                Console.ForegroundColor = ConsoleColor.White;
-                            }
+                            EvaluateExpression(input);
                         }
                         break;
                 }
@@ -430,9 +413,52 @@ namespace DigitalNumeracyCalculator
             } while (isInCalculator);
         }
 
+        public static void EvaluateExpression(string input)
+        {
+            /*This method evaluates arithmetic expressions. It provides the user with feedback if they
+             * enter a bad expression, and the user has the choice to view an example of what a valid
+             * expression actually looks like (otherwise what they did wrong may be ambigious)*/
+
+            if ("-0123456789(".Contains(input.Substring(0, 1)))
+            {
+                if (EvaluatePostfix(ConvertToPostfix(input)) != 1234.4321)
+                {
+                    Console.WriteLine($"@ {ConvertToPostfix(input)}");
+                    Console.WriteLine($"@ {EvaluatePostfix(ConvertToPostfix(input))}");
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"""@ Bad expression. Input "ex" to see an example of a valid expression.""");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write("# ");
+                    string example = Console.ReadLine().ToLower();
+
+                    if(example == "ex")
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.Write("@ 2+3--4*(-4^7)");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write(" ---> ");
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.Write("@ 2 + 3 - -4 * ( -4 ^ 7 )\n");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                }
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"""@ "{input}" is unknown. Input "help" to see a list of operations.""");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+        }
+
         public static void InputError(string error)
         {
-            /*This is a small method that handles error messages*/
+            /*This is a small method that handles error messages. I decided to create this so the user would
+             * not be totally left in the dark if they make a syntax error. They also have the option to
+             * view more information about the error, but it's usually pretty vague (mostly index errors)*/
 
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"""@ Syntax error or bad expression. Input "more" for more information.""");
@@ -452,14 +478,16 @@ namespace DigitalNumeracyCalculator
 
         public static double SquareRoot(double expression)
         {
-            /*Fairly self explanatory. Returns the square root of an expression*/
+            /*Fairly self explanatory. Returns the square root of an expression. It's a single line of
+             * code so I could have just put it inside the GetUserInput method, but I like dividing and
+             * organizing my codes into methods for the purpose of readability and debugging*/
 
             return Math.Sqrt(expression);
         }
 
         public static long Factorial(int expression)
         {
-            /*Returns the factorial of a number*/
+            /*Again fairly self explanatory, returns the factorial of a number*/
 
             long result = 1; //using a long int here for 64 bits
 
@@ -1063,7 +1091,3 @@ namespace DigitalNumeracyCalculator
         }
     }
 }
-
-/*AI USAGE
- * I used AI to figure out why my shunting algorithm wasn't ordering "^" operators correctly. It said because "^" operators have right associativity instead of left, unlike all other operators.
- * It told me I could make an extra method to check each token's associativity but I decided this was redundant and instead just added an if statement.*/
