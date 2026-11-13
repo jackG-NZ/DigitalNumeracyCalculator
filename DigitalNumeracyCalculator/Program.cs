@@ -381,7 +381,7 @@ namespace DigitalNumeracyCalculator
                     case "invmat":
                         try
                         {
-                            Console.WriteLine($"@ {input.Split()[1]}^-1 = {InvMat(input)}");
+                            Console.WriteLine($"@ {InvMat(input)}");
                         }
                         catch (Exception error)
                         {
@@ -883,18 +883,25 @@ namespace DigitalNumeracyCalculator
         {
             /*Returns the inverse of a matrix*/
 
-            double determinant = 1 / Convert.ToDouble(DetMat(input));
+            if (DetMat(input) != 0)
+            {
+                double determinant = 1 / Convert.ToDouble(DetMat(input));
 
-            string matrix = Dereference(input.Split()[1], "matrix", false);
+                string matrix = Dereference(input.Split()[1], "matrix", false);
 
-            double a = determinant * Convert.ToDouble(matrix.Split()[3]);         //d
-            double b = determinant * Convert.ToDouble(matrix.Split()[1]) * -1;    //-b
-            double c = determinant * Convert.ToDouble(matrix.Split()[2]) * -1;    //-c
-            double d = determinant * Convert.ToDouble(matrix.Split()[0]);         //a
+                double a = determinant * Convert.ToDouble(matrix.Split()[3]);         //d
+                double b = determinant * Convert.ToDouble(matrix.Split()[1]) * -1;    //-b
+                double c = determinant * Convert.ToDouble(matrix.Split()[2]) * -1;    //-c
+                double d = determinant * Convert.ToDouble(matrix.Split()[0]);         //a
 
-            Console.WriteLine($"@ 1/ad-bc = {determinant}");
+                Console.WriteLine($"@ 1/ad-bc = {determinant}");
 
-            return Convert.ToString($"{a:F2} {b:F2} {c:F2} {d:F2}");
+                return Convert.ToString($"{input.Split()[1]}^-1 = {a:F2} {b:F2} {c:F2} {d:F2}");
+            }
+            else
+            {
+                return "The inverse does not exist.";
+            }
         }
 
         public static string ConvertToPostfix(string input)
