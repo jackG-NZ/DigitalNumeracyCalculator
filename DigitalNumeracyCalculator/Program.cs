@@ -381,7 +381,7 @@ namespace DigitalNumeracyCalculator
                     case "invmat":
                         try
                         {
-                            Console.WriteLine($"@ {InvMat(input)}");
+                            Console.WriteLine($"@ {input.Split()[1]}^-1 = {InvMat(input)}");
                         }
                         catch (Exception error)
                         {
@@ -879,9 +879,22 @@ namespace DigitalNumeracyCalculator
             return determinant;
         }
 
-        public static int InvMat(string input)
+        public static string InvMat(string input)
         {
-            return 0;
+            /*Returns the inverse of a matrix*/
+
+            double determinant = 1 / Convert.ToDouble(DetMat(input));
+
+            string matrix = Dereference(input.Split()[1], "matrix", false);
+
+            double a = determinant * Convert.ToDouble(matrix.Split()[3]);         //d
+            double b = determinant * Convert.ToDouble(matrix.Split()[1]) * -1;    //-b
+            double c = determinant * Convert.ToDouble(matrix.Split()[2]) * -1;    //-c
+            double d = determinant * Convert.ToDouble(matrix.Split()[0]);         //a
+
+            Console.WriteLine($"@ 1/ad-bc = {determinant}");
+
+            return Convert.ToString($"{a:F2} {b:F2} {c:F2} {d:F2}");
         }
 
         public static string ConvertToPostfix(string input)
