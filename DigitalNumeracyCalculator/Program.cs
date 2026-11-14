@@ -4,6 +4,7 @@ using System.Dynamic;
 using System.IO.Pipes;
 using System.Linq.Expressions;
 using System.Net;
+using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -93,11 +94,11 @@ namespace DigitalNumeracyCalculator
                     Console.Write("\n\n# ");
                 }
 
-                string inputString = Console.ReadLine().ToLower();
+                string? inputString = Console.ReadLine()?.ToLower();
 
                 char input = 'z';
 
-                if (inputString.Length > 0)
+                if (inputString?.Length > 0)
                 {
                     input = Convert.ToChar(inputString.Substring(0, 1));
                 }
@@ -123,6 +124,9 @@ namespace DigitalNumeracyCalculator
                         list = "Matrix";
                         break;
                     case 'f':
+                        list = "NumberTheory";
+                        break;
+                    case 'g':
                         viewCommands = false;
                         break;
                 }
@@ -140,16 +144,16 @@ namespace DigitalNumeracyCalculator
              * inside a try/except but I think it's the cleanest way to do input
              * protection*/
 
-            string input = "";
+            string? input = "";
 
             bool isInCalculator = true;
 
             do
             {
                 Console.Write("# ");
-                input = Console.ReadLine().ToLower();
+                input = Console.ReadLine()?.ToLower();
 
-                switch (input.Split()[0])
+                switch (input?.Split()[0])
                 {
                     case "clear":
                         Console.Clear();
@@ -388,6 +392,26 @@ namespace DigitalNumeracyCalculator
                             InputError(error.Message);
                         }
                         break;
+                    case "numprime":
+                        try
+                        {
+                            Console.WriteLine($"@ {NumPrime(input)}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
+                    case "numcheckdigit":
+                        try
+                        {
+                            NumCheckDigit(input);
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
                     case "ibm": //Easter egg
                         {
                             Console.WriteLine("@ A COMPUTER");
@@ -403,7 +427,7 @@ namespace DigitalNumeracyCalculator
                             break;
                         }
                     default:
-                        if(input.Length > 0)
+                        if(input?.Length > 0)
                         {
                             EvaluateExpression(input);
                         }
@@ -432,7 +456,7 @@ namespace DigitalNumeracyCalculator
                     Console.WriteLine($"""@ Bad expression. Input "ex" to see an example of a valid expression.""");
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.Write("# ");
-                    string example = Console.ReadLine().ToLower();
+                    string? example = Console.ReadLine()?.ToLower();
 
                     if(example == "ex")
                     {
@@ -465,7 +489,7 @@ namespace DigitalNumeracyCalculator
 
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("# ");
-            string more = Console.ReadLine().ToLower();
+            string? more = Console.ReadLine()?.ToLower();
 
             if(more == "more")
             {
@@ -901,6 +925,153 @@ namespace DigitalNumeracyCalculator
             else
             {
                 return "The inverse does not exist.";
+            }
+        }
+
+        public static bool NumPrime(string input)
+        {
+            /*Returns true if a given number is prime, false if it's not. This was surprisingly difficult to implement*/
+
+            bool isPrime = true;
+
+            int number = Convert.ToInt32(input.Split()[1]);
+
+            if(number <= 1 || number % 2 == 0)
+            {
+                isPrime = false;
+            }
+
+            if(number == 2)
+            {
+                isPrime = true;
+            }
+
+            int sqrt = (int)Math.Floor(Math.Sqrt(number)); //we have to cast this to an int otherwise it freaks out
+
+            for(int i = 3; i <= sqrt; i += 2)
+            {
+                if(number % i == 0)
+                {
+                    isPrime = false;
+                }
+            }
+
+            return isPrime;
+        }
+
+        public static void NumCheckDigit(string input)
+        {
+            /*This method basically processes the user's input and determines if it's valid or not, before passing it onto the
+             *EvaluateCheckDigit method*/
+
+            string barType = "";
+
+            int length = 0;
+
+            bool isValid = true;
+
+            switch (input.Split()[1].Length)
+            {
+                case 11:
+                    barType = "UPC";
+                    length = 11;
+                    break;
+                case 12:
+                    barType = "EAN-13";
+                    length = 12;
+                    break;
+                case 9:
+                    barType = "ISBN";
+                    length = 9;
+                    break;
+                default:
+                    isValid = false;
+                    break;
+            }
+
+            if (isValid && !input.Split()[1].Any(char.IsLetter))
+            {
+                EvaluateCheckDigit(input, barType, length);
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("@ Not recognized. Please ensure barcode is in correct format.");
+            }
+
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        public static void EvaluateCheckDigit(string input, string barType, int length)
+        {
+            /*This method performs all the calculations for evaluating a barcode and its checkdigit. It's a bit too long, I would
+             *like to divide it into some smaller methods at some point*/
+
+            int sum = 0, checkDigit = 0, result = 0;
+
+            int[] barCode = new int[length];
+
+            int[] rawCode = input.Split()[1].Select(c => (int)char.GetNumericValue(c)).ToArray(); //.Select is from LINQ so hopefully I'm allowed to include it here
+
+            Console.Write($"@ Barcode standard: {barType} | ");
+
+            for (int i = 0; i < length; i++)
+            {
+                barCode[i] = rawCode[i];
+            }
+
+            checkDigit = Convert.ToInt32(input.Split()[2]);
+
+            for (int i = 0; i < length; i++)
+            {
+                switch (barType)
+                {
+                    case "UPC":
+                        if (i % 2 == 0)
+                        {
+                            barCode[i] *= 3;
+                        }
+                        break;
+                    case "EAN-13":
+                        if (i % 2 != 0)
+                        {
+                            barCode[i] *= 3;
+                        }
+                        break;
+                    case "ISBN":
+                        barCode[i] *= i + 1;
+                        break;
+                    default:
+                        Console.WriteLine("An unexpected error has occured.");
+                        break;
+                }
+            }
+
+            foreach (int digit in barCode)
+            {
+                sum += digit;
+            }
+
+            Console.Write($"CD: {checkDigit} | Sum: {sum}\n");
+
+            if (barType != "ISBN")
+            {
+                result = (10 - (sum % 10) % 10);
+            }
+            else
+            {
+                result = sum % 11;
+            }
+
+            if (result == checkDigit)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("@ The check digit is correct.");
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"@ The check digit is incorrect. It should be {result}.");
             }
         }
 

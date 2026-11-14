@@ -1,13 +1,20 @@
 **BUGS**
 
-The program currently doesn't handle multiple operators occuring one after the other, for example: 2 + + + + + 3
-It doesn't crash, but it causes weird things to happen. Should be pretty easy to fix.
+1.
+	The program currently doesn't handle multiple operators occuring one after the other, for example: 2 + + + + + 3
+	It doesn't crash, but it causes weird things to happen. Should be pretty easy to fix.
+
+2.
+	After the bad expression message, all inputs excluding "ex" are ignored. For example:
+	@ Bad expression. Input "ex" to see an example of a valid expression.
+    # mat a 1 2 3 4
+	The matrix is not initialized because the input is not ignored. Should fix this at some point.
 
 **AI USAGE**
 
 1. 
 	I used Copilot to figure out why my shunting algorithm wasn't ordering ^ operators correctly. It said because ^ operators have right associativity instead of left, unlike all other operators.
-	It told me I could make an extra method to check each token's associativity but I decided this was redundant and instead just added an if statement.
+	It told me I could make an extra method to check each token's associativity but I decided this was redundant and instead just added an if statement to check for any occurances of ^.
 
 2.
 	I asked Copilot to verify that my InvMat method was returning the right results, which it did. It also suggested that I add protection for singular matrices (where the inverse does not exist).

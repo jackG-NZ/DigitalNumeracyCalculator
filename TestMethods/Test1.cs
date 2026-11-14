@@ -29,7 +29,7 @@
         {
             double expectedResult = 5;
 
-            double actualResult = DigitalNumeracyCalculator.Program.Interpreter("!sqrt 25");
+            double actualResult = DigitalNumeracyCalculator.Program.SquareRoot(25);
 
             Assert.AreEqual(expectedResult, actualResult);
         }
