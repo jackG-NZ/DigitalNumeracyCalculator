@@ -9,6 +9,11 @@
 	Bad expression. Input "ex" to see an example of a valid expression.
     mat a 1 2 3 4
 	The matrix is not initialized because the input is not ignored. Should fix this at some point.
+3.
+	While navigating the sub-menus, it's possible for the user to input something other than "q" which may take them to a different sub-menu.
+	This isn't horrible, but it might be a bit confusing for the user because they may wonder where they are and how they got there. The idea
+	is that all sub-menus are accessible through via the "main" menu and should not be able to access each other. This makes menu navigation
+	very linear but for a project of this size I don't think it should be a problem.
 
 **AI USAGE**
 
@@ -21,3 +26,6 @@
 	Copilot: "One extra test I'd recommend is a singular matrix, such as: [1 2 2 4]. Here the determinant is 1 * 4 - 2 * 2 = 0 so the inverse does not exist. Your invmat command should detect that and
 	refuse the operation instead of dividing by zero. That's a great edge case to verify before calling the implementation finished."
 	This was a good suggestion from Copilot as I had forgotten about this edge case.
+3.
+	I asked Copilot to verify that my NumRand method was generating the correct numbers for a given input. I sent a screenshot of the program's output and asked "Does this look correct?".
+	Copilot: Yes, that looks correct for the linear congruential generator xn+1 = (18xn + 3) mod 89 with seed x0 = 2.

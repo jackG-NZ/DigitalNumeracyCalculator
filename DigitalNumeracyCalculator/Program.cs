@@ -1088,13 +1088,18 @@ namespace DigitalNumeracyCalculator
 
         public static void NumRand(string input) //input in the format of numRand a X c m where X is the seed
         {
+            /*This method returns a set of random numbers for given inputs, generated with the linear congruential method
+             * it's a bit messy and horrible but it works*/
+
             bool isRepeat = false;
 
             int generatedNum = 0, previousNum = 0, numCounter = 0;
+
             int a = Convert.ToInt32(input.Split()[1]);
             int seed = Convert.ToInt32(input.Split()[2]);
             int c = Convert.ToInt32(input.Split()[3]);
             int m = Convert.ToInt32(input.Split()[4]);
+
             int firstNum = (a * seed + c) % m;
 
             Console.WriteLine($"@ x{numCounter,-2} = {seed,-2}");
@@ -1314,12 +1319,12 @@ namespace DigitalNumeracyCalculator
         static void DisplayMainMenu(StreamReader sr)
         {
             Console.BackgroundColor = ConsoleColor.DarkBlue;
-            Console.WriteLine("============ CLI CALCULATOR ============");
+            Console.WriteLine("============= CLI CALCULATOR =============");
             Console.BackgroundColor = ConsoleColor.Cyan;
             Console.ForegroundColor = ConsoleColor.Black;
             Console.Write(sr.ReadToEnd());
             Console.BackgroundColor = ConsoleColor.DarkCyan;
-            Console.WriteLine("\n======= Input your choice below. =======");
+            Console.WriteLine("\n======== Input your choice below. ========");
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
         }
