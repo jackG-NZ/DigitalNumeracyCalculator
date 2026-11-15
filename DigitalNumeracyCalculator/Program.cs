@@ -8,6 +8,7 @@ using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 //!!! SEE THE DOCUMENTATION.md FILE FOR INFORMATION ABOUT BUGS, AI USAGE, ETC !!!
@@ -412,6 +413,16 @@ namespace DigitalNumeracyCalculator
                             InputError(error.Message);
                         }
                         break;
+                    case "numrand":
+                        try
+                        {
+                            NumRand(input);
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
                     case "ibm": //Easter egg
                         {
                             Console.WriteLine("@ A COMPUTER");
@@ -453,7 +464,7 @@ namespace DigitalNumeracyCalculator
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"""@ Bad expression. Input "ex" to see an example of a valid expression.""");
+                    Console.WriteLine($"""@ Bad expression. Input "ex" to see an example of a valid expression. Press [ENTER] to ignore.""");
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.Write("# ");
                     string? example = Console.ReadLine()?.ToLower();
@@ -1073,6 +1084,51 @@ namespace DigitalNumeracyCalculator
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"@ The check digit is incorrect. It should be {result}.");
             }
+        }
+
+        public static void NumRand(string input) //input in the format of numRand a X c m where X is the seed
+        {
+            bool isRepeat = false;
+
+            int generatedNum = 0, previousNum = 0, numCounter = 0;
+            int a = Convert.ToInt32(input.Split()[1]);
+            int seed = Convert.ToInt32(input.Split()[2]);
+            int c = Convert.ToInt32(input.Split()[3]);
+            int m = Convert.ToInt32(input.Split()[4]);
+            int firstNum = (a * seed + c) % m;
+
+            Console.WriteLine($"@ x{numCounter,-2} = {seed,-2}");
+
+            seed = firstNum;
+
+            numCounter++;
+
+            Console.WriteLine($"@ x{numCounter,-2} = ({a,-2} * {seed,-2} + {c,-2}) mod {m} = {firstNum,-2}");
+
+            do
+            {
+                numCounter++;
+
+                generatedNum = (a * seed + c) % m;
+
+                seed = generatedNum;
+
+                if(generatedNum == firstNum || generatedNum == previousNum)
+                {
+                    isRepeat = true;
+                }
+                else
+                {
+                    Console.Write($"@ x{numCounter,-2} = ({a,-2} * {seed,-2} + {c,-2}) mod {m,-2} = ");
+
+                    Console.Write($"{generatedNum,-2}\n");
+                }
+
+                previousNum = generatedNum;
+
+            } while (!isRepeat);
+
+            Console.WriteLine($"@ {numCounter - 1} unique tokens generated.");
         }
 
         public static string ConvertToPostfix(string input)

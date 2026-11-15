@@ -6,8 +6,8 @@
 
 2.
 	After the bad expression message, all inputs excluding "ex" are ignored. For example:
-	@ Bad expression. Input "ex" to see an example of a valid expression.
-    # mat a 1 2 3 4
+	Bad expression. Input "ex" to see an example of a valid expression.
+    mat a 1 2 3 4
 	The matrix is not initialized because the input is not ignored. Should fix this at some point.
 
 **AI USAGE**
