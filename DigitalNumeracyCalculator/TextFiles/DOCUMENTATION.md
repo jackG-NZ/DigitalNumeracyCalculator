@@ -3,7 +3,6 @@
 1.
 	The program currently doesn't handle multiple operators occuring one after the other, for example: 2 + + + + + 3
 	It doesn't crash, but it causes weird things to happen. Should be pretty easy to fix.
-
 2.
 	After the bad expression message, all inputs excluding "ex" are ignored. For example:
 	Bad expression. Input "ex" to see an example of a valid expression.
@@ -14,6 +13,8 @@
 	This isn't horrible, but it might be a bit confusing for the user because they may wonder where they are and how they got there. The idea
 	is that all sub-menus are accessible through via the "main" menu and should not be able to access each other. This makes menu navigation
 	very linear but for a project of this size I don't think it should be a problem.
+4.
+	Encountered issues setting up some test methods. This is explained in more detail in TestGenerics.cs.
 
 **AI USAGE**
 

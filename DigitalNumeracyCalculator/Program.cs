@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-//!!! SEE THE DOCUMENTATION.md FILE FOR INFORMATION ABOUT BUGS, AI USAGE, ETC !!!
+//!!! SEE THE DOCUMENTATION.md FILE FOR INFORMATION ABOUT BUGS, AI USAGE, ETC !!! (FILE IS IN TEXTFILES DIR)
 
 namespace DigitalNumeracyCalculator
 {
@@ -128,6 +128,9 @@ namespace DigitalNumeracyCalculator
                         list = "NumberTheory";
                         break;
                     case 'g':
+                        list = "Cryptography";
+                        break;
+                    case 'h':
                         viewCommands = false;
                         break;
                 }
@@ -137,13 +140,11 @@ namespace DigitalNumeracyCalculator
             Console.Clear();
         }
 
-        static void GetUserInput()
+        public static void GetUserInput()
         {
-            /*This method handles user input. The enormous switch statement is 
-             * for performing the right actions or calling the right methods, and also
-             * handling input errors. I'm not a big fan of having every method call
-             * inside a try/except but I think it's the cleanest way to do input
-             * protection*/
+            /*This method handles user input. The enormous switch statement is for performing the right actions or calling the right methods, and also
+             * handling input errors. I'm not a big fan of having every method call inside a try/except but I think it's the cleanest way to do input
+             * protection. There wasn't anything particularly difficult about writing this method.*/
 
             string? input = "";
 
@@ -423,6 +424,9 @@ namespace DigitalNumeracyCalculator
                             InputError(error.Message);
                         }
                         break;
+                    case "caesaren":
+                        CaesarEncrypt(input);
+                        break;
                     case "ibm": //Easter egg
                         {
                             Console.WriteLine("@ A COMPUTER");
@@ -450,9 +454,8 @@ namespace DigitalNumeracyCalculator
 
         public static void EvaluateExpression(string input)
         {
-            /*This method evaluates arithmetic expressions. It provides the user with feedback if they
-             * enter a bad expression, and the user has the choice to view an example of what a valid
-             * expression actually looks like (otherwise what they did wrong may be ambigious)*/
+            /*This method evaluates arithmetic expressions. It provides the user with feedback if they enter a bad expression, and the user has the choice to view an example of what a valid
+             * expression actually looks like (otherwise what they did wrong may be ambigious). This method was easy to write but I think it could be a bit cleaner*/
 
             if ("-0123456789(".Contains(input.Substring(0, 1)))
             {
@@ -676,7 +679,7 @@ namespace DigitalNumeracyCalculator
                         Console.WriteLine($"@ {lines[i].x1} {lines[i].y1} {lines[i].x2} {lines[i].y2}");
                     }
 
-                    variable = Convert.ToString(lines[i].x1 + " " + lines[i].y1 + " " + lines[i].x2 + " " + lines[i].y2);
+                    return $"{lines[i].x1 + " " + lines[i].y1 + " " + lines[i].x2 + " " + lines[i].y2}";
                 }
 
                 if (vectors[i].vectorName == variable)
@@ -686,7 +689,7 @@ namespace DigitalNumeracyCalculator
                         Console.WriteLine($"@ {vectors[i].x} {vectors[i].y}");
                     }
 
-                    variable = Convert.ToString(vectors[i].x + " " + vectors[i].y);
+                    return $"{vectors[i].x + " " + vectors[i].y}";
                 }
 
                 if (matrices[i].matrixName == variable)
@@ -696,14 +699,14 @@ namespace DigitalNumeracyCalculator
                         Console.WriteLine($"@ {matrices[i].a} {matrices[i].b} {matrices[i].c} {matrices[i].d}");
                     }
 
-                    variable = Convert.ToString(matrices[i].a + " " + matrices[i].b + " " + matrices[i].c + " " + matrices[i].d);
+                    return $"{matrices[i].a + " " + matrices[i].b + " " + matrices[i].c + " " + matrices[i].d}";
                 }
             }
 
-            return variable;
+            return "";
         }
 
-        static double LengthLine(string input)
+        public static double LengthLine(string input)
         {
             /*Returns the length of a line*/
 
@@ -720,7 +723,7 @@ namespace DigitalNumeracyCalculator
             return SquareRoot(dx * dx + dy * dy);
         }
 
-        static string MidPointLine(string input)
+        public static string MidPointLine(string input)
         {
             /*Returns the midpoint of a line*/
 
@@ -740,7 +743,7 @@ namespace DigitalNumeracyCalculator
             return midPoint;
         }
 
-        static double GradientLine(string input)
+        public static double GradientLine(string input)
         {
             /*Returns the gradient of a line*/
 
@@ -773,7 +776,7 @@ namespace DigitalNumeracyCalculator
 
         public static double Deg2Rad(string input)
         {
-            /*Returns radians converted from degrees*/
+            /*Returns radians converted from degrees*/  
 
             double degrees = Convert.ToDouble(input.Split()[1]);
 
@@ -970,7 +973,7 @@ namespace DigitalNumeracyCalculator
             return isPrime;
         }
 
-        public static void NumCheckDigit(string input)
+        public static string NumCheckDigit(string input)
         {
             /*This method basically processes the user's input and determines if it's valid or not, before passing it onto the
              *EvaluateCheckDigit method*/
@@ -1011,9 +1014,11 @@ namespace DigitalNumeracyCalculator
             }
 
             Console.ForegroundColor = ConsoleColor.White;
+
+            return barType; //this is only useful for the test method
         }
 
-        public static void EvaluateCheckDigit(string input, string barType, int length)
+        public static int EvaluateCheckDigit(string input, string barType, int length)
         {
             /*This method performs all the calculations for evaluating a barcode and its checkdigit. It's a bit too long, I would
              *like to divide it into some smaller methods at some point*/
@@ -1084,9 +1089,11 @@ namespace DigitalNumeracyCalculator
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"@ The check digit is incorrect. It should be {result}.");
             }
+
+            return result; //again, only useful for the test method
         }
 
-        public static void NumRand(string input) //input in the format of numRand a X c m where X is the seed
+        public static int NumRand(string input) //input in the format of numRand a X c m where X is the seed
         {
             /*This method returns a set of random numbers for given inputs, generated with the linear congruential method
              * it's a bit messy and horrible but it works*/
@@ -1134,6 +1141,71 @@ namespace DigitalNumeracyCalculator
             } while (!isRepeat);
 
             Console.WriteLine($"@ {numCounter - 1} unique tokens generated.");
+
+            return numCounter - 1;
+        }
+
+        public static void CaesarEncrypt(string input)
+        {
+            string rawPhrase = "";
+
+            int EndQuoteIndex = 0, lengthToEndOfQuote = 0;
+
+            bool validPhrase = true;
+
+            try
+            {
+                EndQuoteIndex = input.LastIndexOf('"');
+ 
+                lengthToEndOfQuote = EndQuoteIndex - input.IndexOf('"');
+
+                rawPhrase = input.Substring(input.IndexOf('"') + 1, lengthToEndOfQuote - 1);
+            }
+            catch
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"""@ Invalid phrase. Please ensure input is in the following format: "I am an example!" """);
+                Console.ForegroundColor = ConsoleColor.White;
+
+                validPhrase = false;
+            }
+
+            if(validPhrase)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"""@ Encrypting "{rawPhrase}" """);
+                Console.ForegroundColor = ConsoleColor.White;
+
+                ProcessCaesarEncrypt(rawPhrase);
+            }
+        }
+
+        public static string ProcessCaesarEncrypt(string rawPhrase)
+        {
+            /*The hardest part of writing this method was figuring out how to handle letters at the far side of the alphabet
+             * like xyz, but thankfully I wrote something very similar to this in Python when I was doing the certificate so
+             * I could look back to that as a reference*/
+
+            string encryptedPhrase = "";
+
+            char[] letterList = rawPhrase.ToLower().ToCharArray();
+
+            for(int i = 0; i < letterList.Length; i++)
+            {
+                if (char.IsLetter(letterList[i]))
+                {
+                    letterList[i] = (char)((letterList[i] - 'a' + 3) % 26 + 'a');
+                }
+            }
+
+            Console.Write("@ ");
+            foreach(char letter in letterList)
+            {
+                Console.Write($"{letter}");
+            }
+            Console.WriteLine();
+
+            return encryptedPhrase;
         }
 
         public static string ConvertToPostfix(string input)
@@ -1319,12 +1391,12 @@ namespace DigitalNumeracyCalculator
         static void DisplayMainMenu(StreamReader sr)
         {
             Console.BackgroundColor = ConsoleColor.DarkBlue;
-            Console.WriteLine("============= CLI CALCULATOR =============");
+            Console.WriteLine("============== CLI CALCULATOR ==============");
             Console.BackgroundColor = ConsoleColor.Cyan;
             Console.ForegroundColor = ConsoleColor.Black;
             Console.Write(sr.ReadToEnd());
             Console.BackgroundColor = ConsoleColor.DarkCyan;
-            Console.WriteLine("\n======== Input your choice below. ========");
+            Console.WriteLine("\n========= Input your choice below. =========");
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
         }
