@@ -3,7 +3,7 @@
 1.
 	The program currently doesn't handle multiple operators occuring one after the other, for example: 2 + + + + + 3
 	It doesn't crash, but it causes weird things to happen. Should be pretty easy to fix.
-2.
+2.  (FIXED)
 	After the bad expression message, all inputs excluding "ex" are ignored. For example:
 	Bad expression. Input "ex" to see an example of a valid expression.
     mat a 1 2 3 4

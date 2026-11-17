@@ -54,6 +54,8 @@ namespace DigitalNumeracyCalculator
 
         public static Matrix[] matrices = new Matrix[8];
 
+        public static string previousError = "No error currently logged.";
+
         static void Main(string[] args)
         {
             LaunchPad();
@@ -179,6 +181,12 @@ namespace DigitalNumeracyCalculator
                         {
                             InputError(error.Message);
                         }
+                        break;
+                    case "more":
+                        MoreErrorInfo(previousError);
+                        break;
+                    case "ex":
+                        ShowExpressionExample();
                         break;
                     case "sqrt":
                         try
@@ -425,7 +433,10 @@ namespace DigitalNumeracyCalculator
                         }
                         break;
                     case "caesaren":
-                        CaesarEncrypt(input);
+                        CaesarInput(input, true);
+                        break;
+                    case "caesarde":
+                        CaesarInput(input, false);
                         break;
                     case "ibm": //Easter egg
                         {
@@ -467,21 +478,8 @@ namespace DigitalNumeracyCalculator
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"""@ Bad expression. Input "ex" to see an example of a valid expression. Press [ENTER] to ignore.""");
+                    Console.WriteLine($"""@ Bad expression. Input "ex" to see an example of a valid expression.""");
                     Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write("# ");
-                    string? example = Console.ReadLine()?.ToLower();
-
-                    if(example == "ex")
-                    {
-                        Console.ForegroundColor = ConsoleColor.DarkYellow;
-                        Console.Write("@ 2+3--4*(-4^7)");
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.Write(" ---> ");
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.Write("@ 2 + 3 - -4 * ( -4 ^ 7 )\n");
-                        Console.ForegroundColor = ConsoleColor.White;
-                    }
                 }
             }
             else
@@ -500,17 +498,31 @@ namespace DigitalNumeracyCalculator
 
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"""@ Syntax error or bad expression. Input "more" for more information.""");
-
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("# ");
-            string? more = Console.ReadLine()?.ToLower();
 
-            if(more == "more")
-            {
-                Console.ForegroundColor = ConsoleColor.DarkYellow;
-                Console.WriteLine($"""@ Exception error: {error}"""); //usually the error message is pretty vague but thought I'd include it anyway
-            }
+            previousError = error;
+        }
 
+        public static void MoreErrorInfo(string error)
+        {
+            /*Just gives the user more information about the error last encountered, probably not exceptionally
+             * helpful but I thought it would be a nice inclusion nevertheless*/
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine($"""@ {error}"""); //usually the error message is pretty vague but thought I'd include it anyway\
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        public static void ShowExpressionExample()
+        {
+            /*Shows the user an example of what a valid expression looks like*/
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("@ 2+3--4*(-4^7)");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(" ---> ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("@ 2 + 3 - -4 * ( -4 ^ 7 )\n");
             Console.ForegroundColor = ConsoleColor.White;
         }
 
@@ -652,6 +664,8 @@ namespace DigitalNumeracyCalculator
              * It's also used by other methods to confirm that instances of a struct actually exist before trying to perform
              * an operation on it. See above, LengthLine and MidPointLine etc.*/
 
+            bool foundObject = false;
+
             string variable = "";
 
             if(type == "line" || type == "deref")
@@ -679,6 +693,8 @@ namespace DigitalNumeracyCalculator
                         Console.WriteLine($"@ {lines[i].x1} {lines[i].y1} {lines[i].x2} {lines[i].y2}");
                     }
 
+                    foundObject = true;
+
                     return $"{lines[i].x1 + " " + lines[i].y1 + " " + lines[i].x2 + " " + lines[i].y2}";
                 }
 
@@ -688,6 +704,8 @@ namespace DigitalNumeracyCalculator
                     {
                         Console.WriteLine($"@ {vectors[i].x} {vectors[i].y}");
                     }
+
+                    foundObject = true;
 
                     return $"{vectors[i].x + " " + vectors[i].y}";
                 }
@@ -699,8 +717,17 @@ namespace DigitalNumeracyCalculator
                         Console.WriteLine($"@ {matrices[i].a} {matrices[i].b} {matrices[i].c} {matrices[i].d}");
                     }
 
+                    foundObject = true;
+
                     return $"{matrices[i].a + " " + matrices[i].b + " " + matrices[i].c + " " + matrices[i].d}";
                 }
+            }
+
+            if (!foundObject)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"""@ "{variable}" could not be dereferenced. Please create it first.""");
+                Console.ForegroundColor = ConsoleColor.White;
             }
 
             return "";
@@ -1021,7 +1048,9 @@ namespace DigitalNumeracyCalculator
         public static int EvaluateCheckDigit(string input, string barType, int length)
         {
             /*This method performs all the calculations for evaluating a barcode and its checkdigit. It's a bit too long, I would
-             *like to divide it into some smaller methods at some point*/
+             *like to divide it into some smaller methods at some point. It was surprisingly easy to write because I wrote a program
+             *that could do exactly this a couple months ago just to entertain my own curiosity. I couldn't just copy and paste it though,
+             *there were a few finnicky things I had to change to get the code working in this project*/
 
             int sum = 0, checkDigit = 0, result = 0;
 
@@ -1029,7 +1058,7 @@ namespace DigitalNumeracyCalculator
 
             int[] rawCode = input.Split()[1].Select(c => (int)char.GetNumericValue(c)).ToArray(); //.Select is from LINQ so hopefully I'm allowed to include it here
 
-            Console.Write($"@ Barcode standard: {barType} | ");
+            Console.WriteLine($"@ Barcode standard: {barType}");
 
             for (int i = 0; i < length; i++)
             {
@@ -1068,7 +1097,7 @@ namespace DigitalNumeracyCalculator
                 sum += digit;
             }
 
-            Console.Write($"CD: {checkDigit} | Sum: {sum}\n");
+            Console.Write($"@ CD: {checkDigit} | Sum: {sum}\n");
 
             if (barType != "ISBN")
             {
@@ -1145,8 +1174,14 @@ namespace DigitalNumeracyCalculator
             return numCounter - 1;
         }
 
-        public static void CaesarEncrypt(string input)
+        public static void CaesarInput(string input, bool encryptOrDecrypt) //1 = encrypt, 2 = decrypt
         {
+            /*This method basically just determines whether or not the user's input is valid and
+             * if it is, passes it to the right method (determined by the encryptOrDecrypt bool).
+             * The hardest part of writing this function was figuring out the logic for the
+             * rawPhrase substring because I had to find and subtract index positions which is
+             * something I'm bad at and struggle to think about intuitively*/
+
             string rawPhrase = "";
 
             int EndQuoteIndex = 0, lengthToEndOfQuote = 0;
@@ -1173,20 +1208,18 @@ namespace DigitalNumeracyCalculator
             if(validPhrase)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"""@ Encrypting "{rawPhrase}" """);
+                Console.WriteLine($"""@ Processing phrase: "{rawPhrase}" """);
                 Console.ForegroundColor = ConsoleColor.White;
 
-                ProcessCaesarEncrypt(rawPhrase);
+                ProcessCaesarEncryptDecrypt(rawPhrase, encryptOrDecrypt);
             }
         }
 
-        public static string ProcessCaesarEncrypt(string rawPhrase)
+        public static void ProcessCaesarEncryptDecrypt(string rawPhrase, bool encryptDecrypt) //1 = encrypt, 2 = decrypt
         {
-            /*The hardest part of writing this method was figuring out how to handle letters at the far side of the alphabet
-             * like xyz, but thankfully I wrote something very similar to this in Python when I was doing the certificate so
-             * I could look back to that as a reference*/
-
-            string encryptedPhrase = "";
+            /*This method does all the maths for the caesar encryption and cryption. The hardest part of writing this method was figuring
+             * out how to handle letters at the far side of the alphabet like xyz, but thankfully I wrote something very similar to this
+             * in Python when I was doing the certificate so I could look back to that as a reference*/
 
             char[] letterList = rawPhrase.ToLower().ToCharArray();
 
@@ -1194,7 +1227,14 @@ namespace DigitalNumeracyCalculator
             {
                 if (char.IsLetter(letterList[i]))
                 {
-                    letterList[i] = (char)((letterList[i] - 'a' + 3) % 26 + 'a');
+                    if (encryptDecrypt)
+                    {
+                        letterList[i] = (char)((letterList[i] - 'a' + 3) % 26 + 'a');
+                    }
+                    else if (!encryptDecrypt)
+                    {
+                        letterList[i] = (char)((letterList[i] - 'a' - 3 + 26) % 26 + 'a');
+                    }
                 }
             }
 
@@ -1204,8 +1244,6 @@ namespace DigitalNumeracyCalculator
                 Console.Write($"{letter}");
             }
             Console.WriteLine();
-
-            return encryptedPhrase;
         }
 
         public static string ConvertToPostfix(string input)
