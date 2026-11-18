@@ -438,6 +438,15 @@ namespace DigitalNumeracyCalculator
                     case "caesarde":
                         CaesarInput(input, false);
                         break;
+                    case "affineen":
+                        AffineInput(input, true);
+                        break;
+                    case "affinede":
+                        AffineInput(input, false);
+                        break;
+                    case "bruteaffine":
+                        BruteAffine(input);
+                        break;
                     case "ibm": //Easter egg
                         {
                             Console.WriteLine("@ A COMPUTER");
@@ -1199,7 +1208,7 @@ namespace DigitalNumeracyCalculator
             catch
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"""@ Invalid phrase. Please ensure input is in the following format: "I am an example!" """);
+                Console.WriteLine($"""@ Invalid phrase. Please ensure phrase is in the following format: "I am an example!" """);
                 Console.ForegroundColor = ConsoleColor.White;
 
                 validPhrase = false;
@@ -1211,11 +1220,11 @@ namespace DigitalNumeracyCalculator
                 Console.WriteLine($"""@ Processing phrase: "{rawPhrase}" """);
                 Console.ForegroundColor = ConsoleColor.White;
 
-                ProcessCaesarEncryptDecrypt(rawPhrase, encryptOrDecrypt);
+                ProcessCaesarEncryptDecrypt(rawPhrase, encryptOrDecrypt); //feels a bit redundant having to pass in this bool again but it works
             }
         }
 
-        public static void ProcessCaesarEncryptDecrypt(string rawPhrase, bool encryptDecrypt) //1 = encrypt, 2 = decrypt
+        public static void ProcessCaesarEncryptDecrypt(string rawPhrase, bool encryptOrDecrypt) //1 = encrypt, 2 = decrypt
         {
             /*This method does all the maths for the caesar encryption and cryption. The hardest part of writing this method was figuring
              * out how to handle letters at the far side of the alphabet like xyz, but thankfully I wrote something very similar to this
@@ -1227,11 +1236,11 @@ namespace DigitalNumeracyCalculator
             {
                 if (char.IsLetter(letterList[i]))
                 {
-                    if (encryptDecrypt)
+                    if (encryptOrDecrypt) //encrypt
                     {
                         letterList[i] = (char)((letterList[i] - 'a' + 3) % 26 + 'a');
                     }
-                    else if (!encryptDecrypt)
+                    else if (!encryptOrDecrypt) //decrypt
                     {
                         letterList[i] = (char)((letterList[i] - 'a' - 3 + 26) % 26 + 'a');
                     }
@@ -1244,6 +1253,157 @@ namespace DigitalNumeracyCalculator
                 Console.Write($"{letter}");
             }
             Console.WriteLine();
+        }
+
+        public static void AffineInput(string input, bool encryptOrDecrypt) //affinexx a b "example phrase"
+        {
+            /*This method basically serves as a platform for all the input validation. It's inefficient, noticing a trend yet?
+             * ideally it should refuse any input for a that has no modular inverse and that would make everything a lot better
+             * but I think in programming 1 we're not too worried about time complexity and o(n) solutions. So I feel
+             * at peace with my laziness*/
+
+            string rawPhrase = "";
+
+            int a = 0, b = 0;
+
+            bool validPhrase = ProcessAffineInput(ref a, ref b, input, ref rawPhrase, false);
+
+            if (validPhrase && a <= 25 && a >= 0 && b <= 25 && b >= 0) //checks that a and b are integers between 0 and 25
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"""@ Processing phrase: "{rawPhrase}" """);
+                Console.ForegroundColor = ConsoleColor.White;
+
+                ProcessAffineEncryptDecrypt(rawPhrase, a, b, encryptOrDecrypt, true);
+            }
+            else if (validPhrase) //want the code below to execute if the phrase is valid but a and b are not valid
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"""@ Please ensure a and b are integers between 0 and 25.""");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+        }
+
+        public static bool ProcessAffineInput(ref int a, ref int b, string input, ref string rawPhrase, bool bruteForce)
+        {
+            /*This method actually does all the trimming, parsing etc that the other methods need to encrypt/decrypt
+             * the phrase correctly. It prints an error message if the user's input is invalid*/
+
+            bool validPhrase = true;
+
+            int EndQuoteIndex = 0, lengthToEndOfQuote = 0;
+
+            try
+            {
+                if (!bruteForce) //we only want a and b to be assigned here if we're not bruteforcing
+                {
+                    a = Convert.ToInt32(input.Split()[1]);
+                    b = Convert.ToInt32(input.Split()[2]);
+                }
+
+                EndQuoteIndex = input.LastIndexOf('"');
+
+                lengthToEndOfQuote = EndQuoteIndex - input.IndexOf('"');
+
+                rawPhrase = input.Substring(input.IndexOf('"') + 1, lengthToEndOfQuote - 1);
+            }
+            catch
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"""@ Invalid phrase. Please ensure phrase is in the following format: "I am an example!" """);
+                Console.ForegroundColor = ConsoleColor.White;
+
+                validPhrase = false;
+
+            }
+
+            return validPhrase;
+        }
+
+        public static void ProcessAffineEncryptDecrypt(string rawPhrase, int a, int b, bool encryptOrDecrypt, bool printNoModularInverseMessage)
+        {
+            char[] letterList = rawPhrase.ToLower().ToCharArray();
+
+            bool noModularInverse = false;
+
+            for (int i = 0; i < letterList.Length; i++)
+            {
+                int x = letterList[i] - 'a';
+
+                if (char.IsLetter(letterList[i]))
+                {
+                    if (encryptOrDecrypt) //encrypt
+                    {
+                        letterList[i] = (char)((a * (letterList[i] - 'a') + b) % 26 + 'a');
+                    }
+                    else if (!encryptOrDecrypt) //decrypt
+                    {
+                        if(FindInverseOfA(a) != -1) //this is horribly inefficient but to be honest I just can't be bothered making it any better right now. It WORKS :D
+                        {
+                            letterList[i] = (char)((FindInverseOfA(a) * ((letterList[i] - 'a' - b + 26) % 26)) % 26 + 'a');
+                        }
+                        else
+                        {
+                            noModularInverse = true;
+                        }
+                    }
+                }
+            }
+
+            if (!noModularInverse)
+            {
+                Console.Write("@ ");
+                foreach (char letter in letterList)
+                {
+                    Console.Write($"{letter}");
+                }
+                Console.Write($" {a} {b}");
+                Console.WriteLine();
+            }
+            else if (printNoModularInverseMessage)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"""@ a ({a}) has no modular inverse therefore this cypher is not decryptable.""");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+        }
+
+        public static void BruteAffine(string input)
+        {
+            string rawPhrase = "";
+
+            int a = 0, b = 0;
+
+            bool validPhrase = ProcessAffineInput(ref a, ref b, input, ref rawPhrase, true);
+
+            if (validPhrase)
+            {
+                for(int i = a; i < 26; i++)
+                {       
+                    for(int j = b; j < 26; j++)
+                    {
+                        ProcessAffineEncryptDecrypt(rawPhrase, i, j, false, false); //decrypt, don't print the mod inverse message
+                    }
+                }
+            }
+        }
+
+        public static int FindInverseOfA(int a)
+        {
+            /*This method returns the inverse of a (if it has one). If no inverse is found it just returns
+             * -1 which is treated like an error code*/
+
+            a %= 26; //divides by 26 and leaves the remainder in a
+
+            for(int i = 0; i < 26; i++)
+            {
+                if ((a * i) % 26 == 1)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
         }
 
         public static string ConvertToPostfix(string input)
