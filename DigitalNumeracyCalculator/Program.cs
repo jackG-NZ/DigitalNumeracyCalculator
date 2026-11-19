@@ -1183,7 +1183,7 @@ namespace DigitalNumeracyCalculator
             return numCounter - 1;
         }
 
-        public static void CaesarInput(string input, bool encryptOrDecrypt) //1 = encrypt, 2 = decrypt
+        public static string CaesarInput(string input, bool encryptOrDecrypt) //1 = encrypt, 2 = decrypt
         {
             /*This method basically just determines whether or not the user's input is valid and
              * if it is, passes it to the right method (determined by the encryptOrDecrypt bool).
@@ -1191,7 +1191,7 @@ namespace DigitalNumeracyCalculator
              * rawPhrase substring because I had to find and subtract index positions which is
              * something I'm bad at and struggle to think about intuitively*/
 
-            string rawPhrase = "";
+            string? rawPhrase = "", processedPhrase = "";
 
             int EndQuoteIndex = 0, lengthToEndOfQuote = 0;
 
@@ -1220,11 +1220,13 @@ namespace DigitalNumeracyCalculator
                 Console.WriteLine($"""@ Processing phrase: "{rawPhrase}" """);
                 Console.ForegroundColor = ConsoleColor.White;
 
-                ProcessCaesarEncryptDecrypt(rawPhrase, encryptOrDecrypt); //feels a bit redundant having to pass in this bool again but it works
+                processedPhrase = ProcessCaesarEncryptDecrypt(rawPhrase, encryptOrDecrypt); //feels a bit redundant having to pass in this bool again but it works
             }
+
+            return processedPhrase; //this is only for the test method, need to return something to use Assert.AreEqual (I think)
         }
 
-        public static void ProcessCaesarEncryptDecrypt(string rawPhrase, bool encryptOrDecrypt) //1 = encrypt, 2 = decrypt
+        public static string ProcessCaesarEncryptDecrypt(string rawPhrase, bool encryptOrDecrypt) //1 = encrypt, 2 = decrypt
         {
             /*This method does all the maths for the caesar encryption and cryption. The hardest part of writing this method was figuring
              * out how to handle letters at the far side of the alphabet like xyz, but thankfully I wrote something very similar to this
@@ -1253,16 +1255,17 @@ namespace DigitalNumeracyCalculator
                 Console.Write($"{letter}");
             }
             Console.WriteLine();
+
+            return new string(letterList);
         }
 
-        public static void AffineInput(string input, bool encryptOrDecrypt) //affinexx a b "example phrase"
+        public static string AffineInput(string input, bool encryptOrDecrypt) //affinexx a b "example phrase"
         {
             /*This method basically serves as a platform for all the input validation. It's inefficient, noticing a trend yet?
              * ideally it should refuse any input for a that has no modular inverse and that would make everything a lot better
-             * but I think in programming 1 we're not too worried about time complexity and o(n) solutions. So I feel
-             * at peace with my laziness*/
+             * but I think in programming one we're not too worried about time complexity or o(n) solutions*/
 
-            string rawPhrase = "";
+            string? rawPhrase = "", processedPhrase = "";
 
             int a = 0, b = 0;
 
@@ -1274,7 +1277,7 @@ namespace DigitalNumeracyCalculator
                 Console.WriteLine($"""@ Processing phrase: "{rawPhrase}" """);
                 Console.ForegroundColor = ConsoleColor.White;
 
-                ProcessAffineEncryptDecrypt(rawPhrase, a, b, encryptOrDecrypt, true);
+                processedPhrase = ProcessAffineEncryptDecrypt(rawPhrase, a, b, encryptOrDecrypt, true);
             }
             else if (validPhrase) //want the code below to execute if the phrase is valid but a and b are not valid
             {
@@ -1282,6 +1285,8 @@ namespace DigitalNumeracyCalculator
                 Console.WriteLine($"""@ Please ensure a and b are integers between 0 and 25.""");
                 Console.ForegroundColor = ConsoleColor.White;
             }
+
+            return processedPhrase; //this is literally only for the test method
         }
 
         public static bool ProcessAffineInput(ref int a, ref int b, string input, ref string rawPhrase, bool bruteForce)
@@ -1317,19 +1322,20 @@ namespace DigitalNumeracyCalculator
 
             }
 
-            return validPhrase;
+            return validPhrase; //for test method
         }
 
-        public static void ProcessAffineEncryptDecrypt(string rawPhrase, int a, int b, bool encryptOrDecrypt, bool printNoModularInverseMessage)
+        public static string ProcessAffineEncryptDecrypt(string rawPhrase, int a, int b, bool encryptOrDecrypt, bool printNoModularInverseMessage)
         {
+            /*This method does all the math for the affine cypher. Much like the caesar cypher it was somewhat difficult to get the a -> z wrapping
+             * working well*/
+
             char[] letterList = rawPhrase.ToLower().ToCharArray();
 
             bool noModularInverse = false;
 
             for (int i = 0; i < letterList.Length; i++)
             {
-                int x = letterList[i] - 'a';
-
                 if (char.IsLetter(letterList[i]))
                 {
                     if (encryptOrDecrypt) //encrypt
@@ -1338,7 +1344,7 @@ namespace DigitalNumeracyCalculator
                     }
                     else if (!encryptOrDecrypt) //decrypt
                     {
-                        if(FindInverseOfA(a) != -1) //this is horribly inefficient but to be honest I just can't be bothered making it any better right now. It WORKS :D
+                        if(FindInverseOfA(a) != -1) //this is horribly inefficient but to be honest I just can't be bothered making it any better right now
                         {
                             letterList[i] = (char)((FindInverseOfA(a) * ((letterList[i] - 'a' - b + 26) % 26)) % 26 + 'a');
                         }
@@ -1357,7 +1363,7 @@ namespace DigitalNumeracyCalculator
                 {
                     Console.Write($"{letter}");
                 }
-                Console.Write($" {a} {b}");
+                //Console.Write($" {a} {b}"); //this line was useful for debugging but isn't needed for normal use
                 Console.WriteLine();
             }
             else if (printNoModularInverseMessage)
@@ -1366,10 +1372,15 @@ namespace DigitalNumeracyCalculator
                 Console.WriteLine($"""@ a ({a}) has no modular inverse therefore this cypher is not decryptable.""");
                 Console.ForegroundColor = ConsoleColor.White;
             }
+
+            return new string(letterList); //for the test method
         }
 
         public static void BruteAffine(string input)
         {
+            /*This method basically just asks as a brute force algorithm by calling the decryption method over and over
+             * again while incrementing a and b*/
+
             string rawPhrase = "";
 
             int a = 0, b = 0;
