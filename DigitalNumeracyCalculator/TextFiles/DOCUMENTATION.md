@@ -1,8 +1,8 @@
 **BUGS**
 
 1.
-	The program currently doesn't handle multiple operators occuring one after the other, for example: 2 + + + + + 3
-	It doesn't crash, but it causes weird things to happen. Should be pretty easy to fix.
+	The calculator currently doesn't handle multiple operators occuring one after the other, for example: 2 + + + + + 3.
+	It doesn't crash, but it should return an error message or something of the sorts.
 2.  
 	After the bad expression message, all inputs excluding "ex" are ignored. For example:
 	Bad expression. Input "ex" to see an example of a valid expression.
@@ -15,6 +15,10 @@
 	very linear but for a project of this size I don't think it should be a problem.
 4.
 	Encountered issues setting up some test methods. This is explained in more detail in TestGenerics.cs.
+5.
+	The calculator currently doesn't handle arithmetic operations of decimals, for example: 2.5 + 2.5. I will need to redesign the shunting-yard
+	algorithm to accommodate for decimal nums. It doesn't crash but it returns an error message if the user attempts to operate on decimal
+	numbers, which is a bit silly (what kind of calculator can't handle 2.5 + 2.5???)
 
 **AI USAGE**
 

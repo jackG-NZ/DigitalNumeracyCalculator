@@ -133,6 +133,9 @@ namespace DigitalNumeracyCalculator
                         list = "Cryptography";
                         break;
                     case 'h':
+                        list = "Binary";
+                        break;
+                    case 'i':
                         viewCommands = false;
                         break;
                 }
@@ -447,6 +450,16 @@ namespace DigitalNumeracyCalculator
                     case "bruteaffine":
                         BruteAffine(input);
                         break;
+                    case "ubinary":
+                        try
+                        {
+                            Console.WriteLine($"@ {UnsignedBinary(input)}");
+                        }
+                        catch (Exception error)
+                        {
+                            InputError(error.Message);
+                        }
+                        break;
                     case "ibm": //Easter egg
                         {
                             Console.WriteLine("@ A COMPUTER");
@@ -494,45 +507,9 @@ namespace DigitalNumeracyCalculator
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"""@ "{input}" is unknown. Input "help" to see a list of operations.""");
+                Console.WriteLine($"""@ "{input}" is unknown. Input "help" to return to the operations menu.""");
                 Console.ForegroundColor = ConsoleColor.White;
             }
-        }
-
-        public static void InputError(string error)
-        {
-            /*This is a small method that handles error messages. I decided to create this so the user would
-             * not be totally left in the dark if they make a syntax error. They also have the option to
-             * view more information about the error, but it's usually pretty vague (mostly index errors)*/
-
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"""@ Syntax error or bad expression. Input "more" for more information.""");
-            Console.ForegroundColor = ConsoleColor.White;
-
-            previousError = error;
-        }
-
-        public static void MoreErrorInfo(string error)
-        {
-            /*Just gives the user more information about the error last encountered, probably not exceptionally
-             * helpful but I thought it would be a nice inclusion nevertheless*/
-
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine($"""@ {error}"""); //usually the error message is pretty vague but thought I'd include it anyway\
-            Console.ForegroundColor = ConsoleColor.White;
-        }
-
-        public static void ShowExpressionExample()
-        {
-            /*Shows the user an example of what a valid expression looks like*/
-
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("@ 2+3--4*(-4^7)");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(" ---> ");
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("@ 2 + 3 - -4 * ( -4 ^ 7 )\n");
-            Console.ForegroundColor = ConsoleColor.White;
         }
 
         public static double SquareRoot(double expression)
@@ -742,6 +719,9 @@ namespace DigitalNumeracyCalculator
             return "";
         }
 
+        /*most of the methods below are pretty simple and self explanatory. I basically just tried to replicate the
+         methods and formulas we've learnt in class into code and I really don't have much to say about them*/
+
         public static double LengthLine(string input)
         {
             /*Returns the length of a line*/
@@ -859,7 +839,8 @@ namespace DigitalNumeracyCalculator
 
         public static string ScalVec(string input)
         {
-            /*This method returns a vector multiplied by a scalar*/
+            /*This method returns a vector multiplied by a scalar. Pretty simple, must multiplying vector components
+             * by an int*/
 
             int scalar = Convert.ToInt32(input.Split()[1]);
 
@@ -904,7 +885,8 @@ namespace DigitalNumeracyCalculator
 
         public static string DotMat(string input)
         {
-            /*This method returns the dot product of two matrices (matrix multiplication)*/
+            /*This method returns the dot product of two matrices (matrix multiplication). Very simple,
+             * just looks a bit messy because of all the input splits*/
                                                                                //0  1  2  3
             string matrixOne = Dereference(input.Split()[1], "matrix", false); //A1 B2 C3 D4
             string matrixTwo = Dereference(input.Split()[2], "matrix", false); //W5 X6 Y7 Z8
@@ -944,7 +926,8 @@ namespace DigitalNumeracyCalculator
 
         public static int DetMat(string input)
         {
-            /*Returns the determinant of a matrix*/
+            /*Returns the determinant of a matrix. It looks a little bit messy but the calculation is really simple,
+             just det = ad - bc. The matrix is deferenced and split up to make a, d, b and c*/
 
             string matrix = Dereference(input.Split()[1], "matrix", false); //det(a) = ad - bc
 
@@ -955,7 +938,9 @@ namespace DigitalNumeracyCalculator
 
         public static string InvMat(string input)
         {
-            /*Returns the inverse of a matrix*/
+            /*Returns the inverse of a matrix. This was a lot easier to implement than I thought
+             * it would be, just had to flip a couple of the values around and make the others negative. Calls the determinant
+             * method to calculate the determinant. I like using existing methods for things when I can*/
 
             if (DetMat(input) != 0)
             {
@@ -980,7 +965,8 @@ namespace DigitalNumeracyCalculator
 
         public static bool NumPrime(string input)
         {
-            /*Returns true if a given number is prime, false if it's not. This was surprisingly difficult to implement*/
+            /*Returns true if a given number is prime, false if it's not. This was pretty simple to write, just
+             tried to replicate the method we learnt in class to work out if a number is prime or not*/
 
             bool isPrime = true;
 
@@ -1417,6 +1403,84 @@ namespace DigitalNumeracyCalculator
             return -1;
         }
 
+        public static double UnsignedBinary(string input)
+        {
+            /*This is a hackjob, not really true binary addition because it essentially converts a binary
+             * expression into decimal before calculating anything. I did it this way because it was much
+             * more simple than writing a method to carrying over 1s and it provides the same result*/
+
+            string expression = "";
+            string binaryOne = "";
+            string binaryTwo = "";
+            string operation = "";
+
+            int baseTwo = 128, valueOne = 0, valueTwo = 0;
+            double result = 1234.4321;
+
+            binaryOne = input.Split()[1];
+            binaryTwo = input.Split()[3];
+            operation = input.Split()[2];
+
+            if (binaryOne.Length < 8)
+            {
+                binaryOne = PadBinary(binaryOne.Length, binaryOne);
+
+                Console.Write($"@ {binaryOne} {operation} ");
+            }
+
+            if (binaryTwo.Length < 8)
+            {
+                binaryTwo = PadBinary(binaryTwo.Length, binaryTwo);
+
+                Console.Write($"{binaryTwo}\n");
+            }
+
+            foreach (char ch in binaryOne)
+            {
+                if (ch == '1')
+                {
+                    valueOne += baseTwo;
+                }
+
+                baseTwo -= baseTwo / 2;
+            }
+
+            baseTwo = 128;
+
+            foreach (char ch in binaryTwo)
+            {
+                if (ch == '1')
+                {
+                    valueTwo += baseTwo;
+                }
+
+                baseTwo -= baseTwo / 2;
+            }
+
+            expression = Convert.ToString(valueOne + " " + operation + " " + valueTwo);
+
+            result = EvaluatePostfix(ConvertToPostfix(expression));
+
+            return result;
+        }
+
+        public static string PadBinary(int length, string binary)
+        {
+            /*This method pads binary expressions with zeros. If the user enters "111" it becomes "00000111". I
+             did this because 8 bit is a bit easier to work with and also looks nicer on the console*/
+
+            string padding = "";
+
+            for (int i = 0; i < 8 - binary.Length; i++)
+            {
+                padding += "0";
+            }
+
+            binary = padding + binary;
+
+            return binary;
+        }
+
         public static string ConvertToPostfix(string input)
         {
             /*Infix notation to postfix notation using shunting yard algorithm.
@@ -1450,11 +1514,11 @@ namespace DigitalNumeracyCalculator
 
             string[] tokens = input.Split(); //splits each digit/symbol into a unique token
 
-            for(int i = 0; i < tokens.Length; i++) //divide by zero protection (the program won't crash without it but I thought )
+            for(int i = 0; i < tokens.Length; i++)
             {
-                if (tokens[i] == "/")
+                if (tokens[i] == "/") 
                 {
-                    if (tokens[i + 1] == "0")
+                    if (tokens[i + 1] == "0") //divide by zero protection (the program won't crash without it but I thought I'd add it anyway)
                     {
                         validExpression = false;
                     }
@@ -1620,6 +1684,43 @@ namespace DigitalNumeracyCalculator
             Console.BackgroundColor = ConsoleColor.DarkCyan;
             Console.WriteLine("\n============================ Input 'q' to return. ============================");
             Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        public static void InputError(string error)
+        {
+            /*This is a small method that handles error messages. I decided to create this so the user would
+             * not be totally left in the dark if they make a syntax error. They also have the option to
+             * view more information about the error, but it's usually pretty vague (mostly index errors)*/
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"""@ Syntax error or bad expression. Input "more" for more information.""");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            previousError = error;
+        }
+
+        public static void MoreErrorInfo(string error)
+        {
+            /*Just gives the user more information about the error last encountered, probably not exceptionally
+             * helpful but I thought it would be a nice inclusion nevertheless*/
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine($"""@ {error}"""); //usually the error message is pretty vague but thought I'd include it anyway\
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        public static void ShowExpressionExample()
+        {
+            /*Shows the user an example of what a valid expression looks like. Should maybe add a more
+             * explicit message about divide by zero*/
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("@ 2+3--4*(-4^7)");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(" ---> ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("2 + 3 - -4 * ( -4 ^ 7 )\n");
             Console.ForegroundColor = ConsoleColor.White;
         }
     }
