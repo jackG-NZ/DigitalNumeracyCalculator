@@ -54,7 +54,7 @@ namespace DigitalNumeracyCalculator
 
         public static Matrix[] matrices = new Matrix[8];
 
-        public static string previousError = "No error currently logged.";
+        public static string previousError = "No error currently logged."; //this is for the error tracking system
 
         static void Main(string[] args)
         {
@@ -63,9 +63,17 @@ namespace DigitalNumeracyCalculator
 
         static void LaunchPad()
         {
+            /*I like keeping main clean so this method serves as a platform to get the program going*/
+
             DisplayCommands();
 
             GetUserInput();
+
+            Console.Write("@ Thank you for using my calculator!");
+
+            Thread.Sleep(1500);
+
+            Console.Clear();
         }
 
         static void DisplayCommands()
@@ -106,7 +114,7 @@ namespace DigitalNumeracyCalculator
                     input = Convert.ToChar(inputString.Substring(0, 1));
                 }
 
-                switch (input)
+                switch (input) //these are all the menus the user can view
                 {
                     case 'q':
                         list = "Menu";
@@ -648,7 +656,9 @@ namespace DigitalNumeracyCalculator
         {
             /*This method is intended to function kinda like derefencing a variable in C by just printing out its values.
              * It's also used by other methods to confirm that instances of a struct actually exist before trying to perform
-             * an operation on it. See above, LengthLine and MidPointLine etc.*/
+             * an operation on it. See above, LengthLine and MidPointLine etc. It iterates through each struct list and attempts
+             * to find the specified object. If found, it returns the values belonging to that object so calculations can be
+             * performed with/on it*/
 
             bool foundObject = false;
 
@@ -1330,7 +1340,7 @@ namespace DigitalNumeracyCalculator
                     }
                     else if (!encryptOrDecrypt) //decrypt
                     {
-                        if(FindInverseOfA(a) != -1) //this is horribly inefficient but to be honest I just can't be bothered making it any better right now
+                        if(FindInverseOfA(a) != -1) //calling this method for each iteration is horribly inefficient
                         {
                             letterList[i] = (char)((FindInverseOfA(a) * ((letterList[i] - 'a' - b + 26) % 26)) % 26 + 'a');
                         }
@@ -1365,7 +1375,8 @@ namespace DigitalNumeracyCalculator
         public static void BruteAffine(string input)
         {
             /*This method basically just asks as a brute force algorithm by calling the decryption method over and over
-             * again while incrementing a and b*/
+             * again while incrementing a and b. I choose this solution because it seemed the most simple and logical,
+             * recycling my existing code by simply putting it in a loop*/
 
             string rawPhrase = "";
 

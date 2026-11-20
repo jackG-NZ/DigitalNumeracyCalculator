@@ -2,7 +2,7 @@
 
 1.
 	The calculator currently doesn't handle multiple operators occuring one after the other, for example: 2 + + + + + 3.
-	It doesn't crash, but it should return an error message or something of the sorts.
+	It doesn't crash, but it should return an error message or something of the sorts letting the user know this is invalid.
 2.  
 	After the bad expression message, all inputs excluding "ex" are ignored. For example:
 	Bad expression. Input "ex" to see an example of a valid expression.
@@ -19,6 +19,10 @@
 	The calculator currently doesn't handle arithmetic operations of decimals, for example: 2.5 + 2.5. I will need to redesign the shunting-yard
 	algorithm to accommodate for decimal nums. It doesn't crash but it returns an error message if the user attempts to operate on decimal
 	numbers, which is a bit silly (what kind of calculator can't handle 2.5 + 2.5???)
+6.
+	If the user attempts to perform an operation on a struct that doesn't exist, for example "midpointLine a" where "a" hasn't been initialized,
+	the program will print two different error messages (one for a syntax error, another for a failed dereference) which might be a bit confusing.
+	Not a bug, moreso something that should be changed to improved the user experience.
 
 **AI USAGE**
 
